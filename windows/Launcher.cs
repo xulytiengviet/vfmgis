@@ -39,13 +39,13 @@ static class Launcher {
             throw new InvalidDataException("Bộ chạy tải về không khớp SHA-256. Chưa chạy tệp này; hãy thử tải lại.");
     }
     static string FindRuntimeRoot(string folder) {
-        var matches = Directory.GetDirectories(folder, "org.gvsig.scripting.app.mainplugin", SearchOption.AllDirectories);
+        var matches = Directory.GetDirectories(folder, "addons", SearchOption.AllDirectories).Where(p => p.Contains("org.gvsig.scripting.app.mainplugin") && new DirectoryInfo(p).Parent.Name == "scripts").ToArray();
         if (matches.Length != 1) throw new IOException("Không xác định được thư mục Scripting của gvSIG.");
         return matches[0];
     }
     static void InstallAddon(string folder) {
         string plugin = FindRuntimeRoot(folder);
-        string destination = Path.Combine(plugin, "scripts", "addons", "VFMGIS");
+        string destination = Path.Combine(plugin, "VFMGIS");
         Directory.CreateDirectory(destination);
         using (var archive = new ZipArchive(Resource("addon.zip"), ZipArchiveMode.Read)) {
             foreach (var entry in archive.Entries) {

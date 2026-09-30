@@ -5,7 +5,15 @@ $bundle = Join-Path $PWD 'dist/addon.zip'
 if (Test-Path $bundle) { Remove-Item $bundle }
 [IO.Compression.ZipFile]::CreateFromDirectory((Join-Path $PWD 'addons/VFMGIS'), $bundle)
 $compiler = Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
-& $compiler /nologo /target:winexe /platform:anycpu /optimize+ /out:dist/VFMGIS-Windows.exe /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:System.IO.Compression.dll /reference:System.IO.Compression.FileSystem.dll /reference:System.Web.Extensions.dll /resource:dist/addon.zip,addon.zip /resource:windows/runtime.json,runtime.json windows/Launcher.cs
+$compileArgs = @('/nologo', '/target:winexe', '/platform:anycpu', '/optimize+', '/codepage:65001',
+    ('/out:' + (Join-Path $PWD 'dist/VFMGIS-Windows.exe')),
+    '/reference:System.Windows.Forms.dll', '/reference:System.Drawing.dll',
+    '/reference:System.IO.Compression.dll', '/reference:System.IO.Compression.FileSystem.dll',
+    '/reference:System.Web.Extensions.dll',
+    ('/resource:' + $bundle + ',addon.zip'),
+    ('/resource:' + (Join-Path $PWD 'windows/runtime.json') + ',runtime.json'),
+    (Join-Path $PWD 'windows/Launcher.cs'))
+& $compiler @compileArgs
 if ($LASTEXITCODE -ne 0) { throw 'C# compilation failed' }
 $zip = Join-Path $PWD 'dist/VFMGIS-Windows.zip'
 if (Test-Path $zip) { Remove-Item $zip }
