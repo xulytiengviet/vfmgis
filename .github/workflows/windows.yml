@@ -20,7 +20,7 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $url = 'https://downloads.gvsig.org/download/gvsig-desktop-testing/dists/2.6.0/builds/3335/gvSIG-desktop-2.6.0-3335-final-win-x86_64.zip'
-          curl.exe --fail --location --retry 3 --connect-timeout 30 --max-time 900 --output runtime.zip $url
+          curl.exe --tlsv1.2 --tls-max 1.2 --fail --location --retry 3 --connect-timeout 30 --max-time 900 --output runtime.zip $url
           if ($LASTEXITCODE -ne 0) { throw 'Official runtime download failed' }
           $hash = (Get-FileHash runtime.zip -Algorithm SHA256).Hash.ToLower()
           @{ url=$url; sha256=$hash; version='gvSIG 2.6.0 build 3335 Windows x64' } | ConvertTo-Json | Set-Content windows/runtime.json
