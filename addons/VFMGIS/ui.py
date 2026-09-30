@@ -105,7 +105,7 @@ class Workspace(object):
         self.project = gvsig.currentProject()
         self.view = self.project.createView('VFMGIS')
         self.view.setProjection(gvsig.getCRS(self.crs))
-        self.map = MapControlLocator.getMapControlManager().createMapControl()
+        self.map = MapControlLocator.getMapControlManager().createJMapControlPanel(self.view.getMapContext())
         self.map.setMapContext(self.view.getMapContext())
         self.map.setCurrentMapTool(None)
         self.map.setDefaultMouseWheelEnabled(False)
