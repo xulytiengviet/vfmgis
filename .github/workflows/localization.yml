@@ -1,0 +1,28 @@
+name: Native gvSIG localization inventory
+on:
+  push:
+    branches: [main]
+    paths: ['localization/**', '.github/workflows/localization.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inventory:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: runtime.zip
+          key: gvsig-win-3335-2a56c62bd027ecf3
+      - name: Verify official core and inventory native resources
+        shell: pwsh
+        run: |
+          $m = Get-Content windows/runtime.json -Raw | ConvertFrom-Json
+          if (!(Test-Path runtime.zip)) { curl.exe -fL --retry 3 -o runtime.zip $m.url }
+          if ((Get-FileHash runtime.zip -Algorithm SHA256).Hash.ToLower() -ne $m.sha256) { throw 'Runtime checksum mismatch' }
+          python localization/inventory.py runtime.zip inventory
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-localization-inventory
+          path: inventory
