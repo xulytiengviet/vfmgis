@@ -533,6 +533,7 @@ class Workspace(object):
         image = BufferedImage(self.map.getWidth(), self.map.getHeight(), BufferedImage.TYPE_INT_RGB)
         graphics = image.createGraphics()
         try:
+            graphics.setClip(0, 0, image.getWidth(), image.getHeight())
             self.map.paint(graphics)
         finally:
             graphics.dispose()

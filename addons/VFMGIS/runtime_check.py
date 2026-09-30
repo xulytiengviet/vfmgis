@@ -8,6 +8,19 @@ import traceback
 from java.lang import System
 
 
+def error_detail():
+    import sys
+    from java.lang import Throwable
+    from java.io import StringWriter, PrintWriter
+    detail = unicode(traceback.format_exc())
+    exc = sys.exc_info()[1]
+    if isinstance(exc, Throwable):
+        buffer = StringWriter()
+        exc.printStackTrace(PrintWriter(buffer))
+        detail += '\n' + unicode(buffer.toString())
+    return detail
+
+
 def _run(report):
     try:
         from addons.VFMGIS.smoke import run as smoke
@@ -52,6 +65,7 @@ def _run(report):
                 from java.io import File
                 image = BufferedImage(window.frame.getWidth(), window.frame.getHeight(), BufferedImage.TYPE_INT_RGB)
                 graphics = image.createGraphics()
+                graphics.setClip(0, 0, image.getWidth(), image.getHeight())
                 window.frame.paint(graphics)
                 graphics.dispose()
                 ImageIO.write(image, 'png', File(os.path.join(os.path.dirname(report), 'dist', 'windows-runtime.png')))
@@ -60,14 +74,14 @@ def _run(report):
                 System.exit(0)
             except:
                 with io.open(report, 'w', encoding='utf-8') as output:
-                    output.write(unicode(traceback.format_exc()))
+                    output.write(error_detail())
                 System.exit(1)
         timer = Timer(7000, finish)
         timer.setRepeats(False)
         timer.start()
     except:
         with io.open(report, 'w', encoding='utf-8') as output:
-            output.write(unicode(traceback.format_exc()))
+            output.write(error_detail())
         System.exit(1)
 
 
