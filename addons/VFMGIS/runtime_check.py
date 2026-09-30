@@ -75,7 +75,8 @@ def run(report):
         from java.lang import Thread as JavaThread
         with io.open(report, 'w', encoding='utf-8') as output:
             output.write('FAIL: integration stalled; thread stacks\n')
-            for thread, stack in JavaThread.getAllStackTraces().entrySet():
+            for entry in JavaThread.getAllStackTraces().entrySet():
+                thread, stack = entry.getKey(), entry.getValue()
                 output.write(unicode(thread.getName()) + '\n')
                 for frame in stack:
                     output.write('  ' + unicode(frame) + '\n')

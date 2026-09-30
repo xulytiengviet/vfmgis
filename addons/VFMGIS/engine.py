@@ -23,50 +23,57 @@ def read_rows(layer, expression=None, limit=MAX_FEATURES):
     if not hasattr(layer, 'features'):
         raise ValueError('Chọn một lớp vector trong danh sách lớp.')
     features = layer.features(expression) if expression else layer.features()
+    iterator = None
     try:
         if features.getSize() > limit:
             raise ValueError('Vượt giới hạn %s đối tượng. Hãy lọc hoặc chia nhỏ dữ liệu.' % limit)
         result = []
-        for f in features:
+        iterator = features.iterator()
+        while iterator.hasNext():
+            f = iterator.next()
             values = dict(f.getValues())
             shape = f.getDefaultGeometry()
             result.append((values, shape.cloneGeometry() if shape is not None else None))
         return result
     finally:
+        dispose(iterator)
         dispose(features)
 
 
 def table_rows(layer, expression=None, limit=2000):
-    from addons.VFMGIS.smoke import stage
-    stage('table query')
     features = layer.features(expression) if expression else layer.features()
-    stage('table size')
+    iterator = None
     try:
         count = features.getSize()
-        stage('table fields')
         fields = [a.getName() for a in layer.getSchema() if not a.getName() == layer.getSchema().getDefaultGeometryAttributeName()]
-        stage('table rows')
         rows = []
-        for f in features:
+        iterator = features.iterator()
+        while iterator.hasNext():
+            f = iterator.next()
             if len(rows) >= limit:
                 break
             rows.append([f.get(name) for name in fields])
         return fields, rows, count
     finally:
+        dispose(iterator)
         dispose(features)
 
 
 def select_expression(layer, expression):
     features = layer.features(expression)  # gvSIG expression parser, never Python eval.
+    iterator = None
     try:
         if features.getSize() > MAX_FEATURES:
             raise ValueError('Tập chọn vượt 50.000 đối tượng.')
         selection = layer.getSelection()
         selection.deselectAll()
-        for feature in features:
+        iterator = features.iterator()
+        while iterator.hasNext():
+            feature = iterator.next()
             selection.select(feature)
         return features.getSize()
     finally:
+        dispose(iterator)
         dispose(features)
 
 
