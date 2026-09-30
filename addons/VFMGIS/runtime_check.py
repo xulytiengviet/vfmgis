@@ -12,6 +12,8 @@ def _run(report):
     try:
         from addons.VFMGIS.smoke import run as smoke
         root = smoke()
+        from addons.VFMGIS.smoke import stage
+        stage('workspace create')
         from javax.swing import SwingUtilities
         box = {}
         def open_workspace():
@@ -19,8 +21,10 @@ def _run(report):
                 from addons.VFMGIS.ui import Workspace
                 from addons.VFMGIS import engine, core
                 window = Workspace('EPSG:32648')
+                stage('workspace load')
                 path = os.path.join(root, 'sample.shp')
                 layer = engine.load_layer(window.view, path, 'shape', 'EPSG:32648')
+                stage('workspace register')
                 window.register(layer, path, 'shape')
                 window.zoom(0.8)
                 window.toggle_layer()
@@ -32,11 +36,12 @@ def _run(report):
                 core.save_project(project, window.crs, window.records, window.extent())
                 assert len(core.load_project(project)['layers']) == 1
                 box['window'] = window
-            except BaseException:
+            except:
                 box['error'] = traceback.format_exc()
         SwingUtilities.invokeAndWait(open_workspace)
         if 'error' in box:
             raise RuntimeError(box['error'])
+        stage('workspace screenshot timer')
         window = box['window']
         from javax.swing import Timer
         def finish(event):
@@ -53,14 +58,14 @@ def _run(report):
                 with io.open(report, 'w', encoding='utf-8') as output:
                     output.write('PASS: gvSIG runtime; sample, filter, selection, buffer, dissolve, centroid, reproject, clip, Swing workspace, MapControl, layer toggle, project roundtrip.\n' + root)
                 System.exit(0)
-            except Exception:
+            except:
                 with io.open(report, 'w', encoding='utf-8') as output:
                     output.write(unicode(traceback.format_exc()))
                 System.exit(1)
         timer = Timer(7000, finish)
         timer.setRepeats(False)
         timer.start()
-    except Exception:
+    except:
         with io.open(report, 'w', encoding='utf-8') as output:
             output.write(unicode(traceback.format_exc()))
         System.exit(1)
