@@ -1,0 +1,8 @@
+{
+  "product": "gvSIG Desktop 2.6.0 build 3335",
+  "core_artifact": "org.gvsig.andami-2.0.436.jar",
+  "core_source_tag": "org.gvsig.desktop-2.0.436",
+  "source_url": "https://devel.gvsig.org/svn/gvsig-desktop/tags/org.gvsig.desktop-2.0.436",
+  "mapping_documentation": "https://blog.gvsig.org/2016/01/13/where-are-the-sources-in-gvsig-desktop/",
+  "runtime_manifest": "windows/runtime.json"
+}

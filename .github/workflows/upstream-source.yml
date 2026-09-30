@@ -1,0 +1,49 @@
+name: Import original gvSIG core source
+on:
+  push:
+    branches: [main]
+    paths: ['upstream/core.json', '.github/workflows/upstream-source.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Export the source tag matching the installed Andami core
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_url=$(python -c 'import json; print(json.load(open("upstream/core.json"))["source_url"])')
+          mkdir -p source-evidence
+          timeout 120 svn info --non-interactive "$source_url" > source-evidence/svn-info.txt
+          timeout 600 svn export --non-interactive "$source_url" original-core > source-evidence/export.log
+          test -f original-core/pom.xml
+          python - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as E
+          p = E.parse('original-core/pom.xml').getroot()
+          ns = {'m': 'http://maven.apache.org/POM/4.0.0'}
+          version = p.findtext('m:version', namespaces=ns)
+          assert version == '2.0.436', version
+          print('Verified original core source:', version)
+          PY
+      - name: Preserve unmodified source on a dedicated branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git checkout --orphan upstream/gvsig-2.0.436
+          git rm -rf --cached . >/dev/null
+          mkdir -p core
+          cp -a original-core/. core/
+          cp upstream/core.json source-evidence/core-lock.json
+          git add core source-evidence/core-lock.json source-evidence/svn-info.txt
+          git -c user.name='VFMGIS source importer' -c user.email='actions@users.noreply.github.com' commit -m 'Import unmodified gvSIG core 2.0.436 with SVN provenance'
+          git push origin HEAD:refs/heads/upstream/gvsig-2.0.436
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: original-core-provenance
+          path: source-evidence
