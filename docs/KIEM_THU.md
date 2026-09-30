@@ -56,3 +56,14 @@ Ghi kết quả kèm phiên bản gvSIG, Jython, Java, Windows, EPSG, số đố
 ## Kiểm tra dữ liệu GIS trước khi phát hành
 
 So sánh buffer/clip/dissolve với dữ liệu kiểm chứng trong một GIS độc lập. Kiểm tra đa vùng, vùng có lỗ, vùng lõm, hình học lỗi, null, dữ liệu rỗng, giao chỉ tại cạnh. Với VN-2000, dùng điểm khống chế đúng múi/kinh tuyến và phương pháp chuyển datum được phê duyệt cho bộ dữ liệu; không suy ra độ chính xác khảo sát chỉ từ EPSG.
+
+## Hồi quy lỗi đường dẫn Windows — bản 0.1.2
+
+[Workflow 36696585980](https://github.com/xulytiengviet/vfmgis/actions/runs/36696585980) đã đạt ngày 30/09/2026:
+
+- Đặt `LongPathsEnabled=0` trong máy kiểm thử Windows; chạy EXE không có tệp `.config` bên cạnh.
+- Tạo, ghi, đọc và xóa cây thư mục thử nghiệm có đường dẫn trên 300 ký tự qua hàm đường dẫn mở rộng của launcher.
+- Giải nén ZIP runtime đã xác minh SHA-256, bỏ thư mục bọc dài, cài addon và khởi động trong cấu trúc `runtime dotnet test/r2` để kiểm tra thư mục cha có dấu cách.
+- Toàn bộ bài kiểm tra gvSIG, workspace và kết xuất ảnh đạt. Registry vẫn tắt hỗ trợ đường dẫn dài suốt bài kiểm tra.
+
+Bản phát hành: [Windows 0.1.2](https://github.com/xulytiengviet/vfmgis/releases/tag/windows-v0.1.2-25). Đây là kiểm tra tự động trên Windows Server 2025; chưa phải xác nhận đã chạy trên máy cá nhân của người dùng.

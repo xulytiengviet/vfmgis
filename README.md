@@ -4,7 +4,7 @@
 
 VFMGIS là phần mở rộng desktop chạy **bên trong gvSIG Desktop**, dành cho sinh viên và người học GIS. Giao diện riêng viết bằng Java Swing/Jython, lấy cảm hứng từ bố cục ArcView: danh sách lớp bên trái, bản đồ giữa, bảng thuộc tính dưới. Dữ liệu được đọc và vẽ bằng lõi gvSIG thực; không có bản đồ giả hoặc dịch vụ backend.
 
-> **Trạng thái:** đã phát hành trình khởi động Windows tự cài gvSIG/Java. Kiểm tra tích hợp tự động đã đạt trên Windows Server 2025 với gvSIG 2.6.0 build 3335: mở giao diện, vẽ bản đồ và xử lý dữ liệu mẫu. Đây là bản 0.1.1 dành cho học tập; chưa kiểm thử thủ công trên mọi cấu hình Windows 10/11. Xem [kết quả kiểm thử](docs/KIEM_THU.md).
+> **Trạng thái:** đã phát hành trình khởi động Windows tự cài gvSIG/Java. Kiểm tra tích hợp tự động đã đạt trên Windows Server 2025 với gvSIG 2.6.0 build 3335: mở giao diện, vẽ bản đồ và xử lý dữ liệu mẫu. Đây là bản 0.1.2 dành cho học tập; chưa kiểm thử thủ công trên mọi cấu hình Windows 10/11. Xem [kết quả kiểm thử](docs/KIEM_THU.md).
 
 ## Chức năng được triển khai
 
@@ -24,6 +24,8 @@ VFMGIS là phần mở rộng desktop chạy **bên trong gvSIG Desktop**, dành
 Toàn bộ nhãn chức năng do VFMGIS tạo dùng tiếng Việt. Các cửa sổ gvSIG gốc, thông báo driver và một số nhãn của hộp thoại hệ thống vẫn phụ thuộc ngôn ngữ gvSIG/Java; **chưa Việt hóa toàn bộ gvSIG**.
 
 ## Chạy trên Windows bằng một tệp EXE
+
+**Bản 0.1.2 sửa lỗi đường dẫn quá dài của 0.1.1.** Đóng EXE cũ và tải bản mới. Không cần chỉnh Registry hoặc tạo `.exe.config`. Bộ chạy được cài vào `%LOCALAPPDATA%\VFMGIS\r2`; tệp tải cũ được dùng lại nếu SHA-256 khớp.
 
 **Tải trực tiếp:** [VFMGIS-Windows.exe](https://github.com/xulytiengviet/vfmgis/releases/latest/download/VFMGIS-Windows.exe) · [Gói ZIP](https://github.com/xulytiengviet/vfmgis/releases/latest/download/VFMGIS-Windows.zip).
 
