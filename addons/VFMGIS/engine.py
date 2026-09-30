@@ -53,6 +53,10 @@ def table_rows(layer, expression=None, limit=2000):
             f = iterator.next()
             if len(rows) >= limit:
                 break
+            # gvSIG 2.6 filtered queries may return only fields used by the filter.
+            # Resolve the stable reference to read the complete feature schema.
+            if expression:
+                f = f.getReference().getFeature()
             rows.append([f.get(name) for name in fields])
         return fields, rows, count
     finally:

@@ -27,5 +27,6 @@ if (-not (Test-Path $report)) {
     Get-Process | Where-Object { $_.ProcessName -match 'java|gvsig' } | Format-Table Id,ProcessName,MainWindowTitle
     throw 'gvSIG did not report integration results within 5 minutes'
 }
+if (Test-Path ($report + '.progress')) { Get-Content ($report + '.progress') }
 Get-Content $report
 if ((Get-Content $report -Raw) -notmatch '^PASS') { throw 'gvSIG integration test failed' }
