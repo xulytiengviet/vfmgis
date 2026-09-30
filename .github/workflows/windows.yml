@@ -37,23 +37,6 @@ jobs:
         with:
           path: runtime.zip
           key: gvsig-win-3335-2a56c62bd027ecf3
-      - name: Capture scripting API for diagnostics
-        shell: pwsh
-        run: |
-          New-Item dist -ItemType Directory -Force | Out-Null
-          $files = Get-ChildItem runtime -Recurse -Filter '*.py' | Where-Object { $_.Name -match 'feature|layer|selection|table|project|view' }
-          Compress-Archive -Path $files.FullName -DestinationPath dist/scripting-api.zip
-          Add-Type -AssemblyName System.IO.Compression.FileSystem
-          foreach ($jar in (Get-ChildItem runtime -Recurse -Filter '*.jar')) {
-            $archive = [IO.Compression.ZipFile]::OpenRead($jar.FullName)
-            $found = $null -ne $archive.GetEntry('org/gvsig/fmap/mapcontrol/MapControl.class')
-            $archive.Dispose()
-            if ($found) {
-              Write-Host $jar.FullName
-              javap -c -l -p -classpath $jar.FullName org.gvsig.fmap.mapcontrol.MapControl org.gvsig.fmap.mapcontrol.MapControlManager | Out-File dist/mapcontrol-api.txt
-              break
-            }
-          }
       - name: Build Windows launcher
         shell: pwsh
         run: ./windows/build.ps1
@@ -62,6 +45,12 @@ jobs:
         run: |
           $p = Start-Process dist/VFMGIS-Windows.exe -ArgumentList '--verify' -Wait -PassThru
           if ($p.ExitCode -ne 0) { throw 'Executable self-test failed' }
+      - name: Regression test with Windows long paths disabled
+        shell: pwsh
+        run: |
+          Set-ItemProperty HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem -Name LongPathsEnabled -Value 0
+          $p = Start-Process dist/VFMGIS-Windows.exe -ArgumentList '--verify-long-paths' -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw 'Path length regression failed with registry disabled' }
       - name: Test bundled gvSIG integration
         shell: pwsh
         run: ./windows/test-runtime.ps1
@@ -80,6 +69,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = 'windows-v0.1.1-' + $env:GITHUB_RUN_NUMBER
-          gh release create $tag dist/VFMGIS-Windows.exe dist/VFMGIS-Windows.zip dist/SHA256SUMS.txt windows/runtime.json --target $env:GITHUB_SHA --title 'VFMGIS Windows 0.1.1' --notes-file windows/RELEASE.md --latest
+          $tag = 'windows-v0.1.2-' + $env:GITHUB_RUN_NUMBER
+          gh release create $tag dist/VFMGIS-Windows.exe dist/VFMGIS-Windows.zip dist/SHA256SUMS.txt windows/runtime.json --target $env:GITHUB_SHA --title 'VFMGIS Windows 0.1.2' --notes-file windows/RELEASE.md --latest
           if ($LASTEXITCODE -ne 0) { throw 'Release upload failed' }

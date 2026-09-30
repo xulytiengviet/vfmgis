@@ -6,6 +6,7 @@ if (Test-Path $bundle) { Remove-Item $bundle }
 [IO.Compression.ZipFile]::CreateFromDirectory((Join-Path $PWD 'addons/VFMGIS'), $bundle)
 $compiler = Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
 $compileArgs = @('/nologo', '/target:winexe', '/platform:anycpu', '/optimize+', '/codepage:65001',
+    ('/win32manifest:' + (Join-Path $PWD 'windows/app.manifest')),
     ('/out:' + (Join-Path $PWD 'dist/VFMGIS-Windows.exe')),
     '/reference:System.Windows.Forms.dll', '/reference:System.Drawing.dll',
     '/reference:System.IO.Compression.dll', '/reference:System.IO.Compression.FileSystem.dll',

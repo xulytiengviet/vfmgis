@@ -16,10 +16,20 @@ using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using System.Windows.Forms;
 
+[assembly: System.Runtime.Versioning.TargetFramework(".NETFramework,Version=v4.8")]
+[assembly: AssemblyVersion("0.1.2.0")]
+
 static class Launcher {
-    const string Version = "0.1.1";
-    static readonly string Store = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "VFMGIS");
-    static readonly string Runtime = Path.Combine(Store, "runtime-2.6.0-3335");
+    const string Version = "0.1.2";
+    static readonly string Store;
+    static readonly string Runtime;
+    static Launcher() {
+        // Set before the first Path call: .NET caches these switches.
+        AppContext.SetSwitch("Switch.System.IO.UseLegacyPathHandling", false);
+        AppContext.SetSwitch("Switch.System.IO.BlockLongPaths", false);
+        Store = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "VFMGIS");
+        Runtime = Path.Combine(Store, "r2");
+    }
     static Dictionary<string,string> Manifest;
     static FileStream Lock;
 
@@ -44,7 +54,15 @@ static class Launcher {
         Directory.CreateDirectory(root);
         using (var archive = ZipFile.OpenRead(archivePath)) {
             foreach (var entry in archive.Entries) {
-                string path = Path.GetFullPath(Path.Combine(root, entry.FullName));
+                const string wrapper = "gvSIG-desktop-2.6.0-3335-final-win-x86_64/";
+                string name = entry.FullName.Replace('\\', '/');
+                if (!name.StartsWith(wrapper, StringComparison.Ordinal))
+                    throw new InvalidDataException("Cấu trúc ZIP gvSIG không đúng phiên bản đã kiểm tra.");
+                name = name.Substring(wrapper.Length);
+                if (name.Length == 0) continue;
+                if (name.Split('/').Any(p => p == ".." || p.Contains(":")) || name.StartsWith("/"))
+                    throw new InvalidDataException("Đường dẫn ZIP không hợp lệ.");
+                string path = Path.GetFullPath(Path.Combine(root, name));
                 if (!path.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
                     throw new InvalidDataException("Đường dẫn ZIP vượt thư mục bộ chạy.");
                 if (String.IsNullOrEmpty(entry.Name)) { Directory.CreateDirectory(path); continue; }
@@ -121,6 +139,18 @@ static class Launcher {
             Manifest = new JavaScriptSerializer().Deserialize<Dictionary<string,string>>(TextResource("runtime.json"));
             VerifySelf();
             if (args.Length > 0 && args[0] == "--verify") return 0;
+            if (args.Length > 0 && args[0] == "--verify-long-paths") {
+                string temp = Path.Combine(Path.GetTempPath(), "vfmgis-path-" + Guid.NewGuid().ToString("N"));
+                try {
+                    string nested = temp;
+                    while (nested.Length < 300) nested = Path.Combine(nested, "long-path-regression-test");
+                    Directory.CreateDirectory(nested);
+                    string file = Path.GetFullPath(Path.Combine(nested, "test.txt"));
+                    File.WriteAllText(file, "VFMGIS");
+                    if (File.ReadAllText(file) != "VFMGIS") throw new IOException("Long path regression failed");
+                } finally { if (Directory.Exists(temp)) Directory.Delete(temp, true); }
+                return 0;
+            }
             if (args.Length == 3 && args[0] == "--test-archive") {
                 string zip = Path.GetFullPath(args[1]);
                 string testFolder = Path.Combine(Path.GetDirectoryName(zip), "runtime dotnet test");
@@ -155,7 +185,7 @@ static class Launcher {
         readonly Button retry = new Button();
         bool busy;
         public SetupWindow() {
-            Text = "VFMGIS · Khởi động GIS tiếng Việt";
+            Text = "VFMGIS 0.1.2 · Khởi động GIS tiếng Việt";
             Size = new Size(570, 275); StartPosition = FormStartPosition.CenterScreen;
             FormBorderStyle = FormBorderStyle.FixedDialog; MaximizeBox = false;
             Font = new Font("Segoe UI", 10); BackColor = Color.White;
@@ -176,7 +206,8 @@ static class Launcher {
                     string download = Path.Combine(Store,"runtime.zip.part");
                     status.Text = "Lần đầu: tải gvSIG và Java (~503 MB).\nCần Internet; không cần quyền quản trị.";
                     progress.Style=ProgressBarStyle.Continuous; progress.Value=0;
-                    using (var client=new WebClient()) {
+                    bool cached = File.Exists(download) && await Task.Run(() => Hash(download) == Manifest["sha256"]);
+                    if (!cached) using (var client=new WebClient()) {
                         client.Headers[HttpRequestHeader.UserAgent]="VFMGIS/"+Version;
                         client.DownloadProgressChanged += (sender,e) => { progress.Value=Math.Max(0,Math.Min(100,e.ProgressPercentage)); status.Text=String.Format("Đang tải bộ chạy: {0:N0} / {1:N0} MB\nLần sau không cần tải lại.",e.BytesReceived/1048576.0,e.TotalBytesToReceive/1048576.0); };
                         await client.DownloadFileTaskAsync(new Uri(Manifest["url"]), download);
@@ -184,7 +215,7 @@ static class Launcher {
                     status.Text="Kiểm tra SHA-256 và giải nén bộ chạy…"; progress.Style=ProgressBarStyle.Marquee;
                     await Task.Run(() => {
                         VerifyArchive(download);
-                        string staging=Runtime+".preparing";
+                        string staging=Runtime+".tmp";
                         if (Directory.Exists(staging)) Directory.Delete(staging,true);
                         Directory.CreateDirectory(staging);
                         ExtractRuntime(download,staging);
@@ -200,7 +231,7 @@ static class Launcher {
                 busy=false; Close();
             } catch (Exception e) {
                 File.WriteAllText(Path.Combine(Store,"launcher-error.txt"),e.ToString());
-                status.Text="Chưa khởi động được. Có thể thử lại sau khi kiểm tra kết nối.";
+                status.Text = e is PathTooLongException ? "Đường dẫn giải nén quá dài. Xem chi tiết lỗi bên dưới." : "Chưa khởi động được. Xem thông báo chi tiết bên dưới.";
                 progress.Style=ProgressBarStyle.Continuous; progress.Value=0;
                 busy=false; retry.Visible=true;
                 MessageBox.Show(this,e.Message+"\n\nChi tiết: "+Path.Combine(Store,"launcher-error.txt"),"VFMGIS",MessageBoxButtons.OK,MessageBoxIcon.Error);
