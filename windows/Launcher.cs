@@ -67,7 +67,7 @@ static class Launcher {
                 if (name.Length == 0) continue;
                 if (name.Split('/').Any(p => p == ".." || p.Contains(":")) || name.StartsWith("/"))
                     throw new InvalidDataException("Đường dẫn ZIP không hợp lệ.");
-                string path = Path.GetFullPath(Path.Combine(root, name));
+                string path = Path.GetFullPath(Path.Combine(root, name.Replace('/', Path.DirectorySeparatorChar)));
                 if (!path.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
                     throw new InvalidDataException("Đường dẫn ZIP vượt thư mục bộ chạy.");
                 if (String.IsNullOrEmpty(entry.Name)) { Directory.CreateDirectory(path); continue; }
@@ -89,7 +89,7 @@ static class Launcher {
         using (var archive = new ZipArchive(Resource("addon.zip"), ZipArchiveMode.Read)) {
             foreach (var entry in archive.Entries) {
                 if (String.IsNullOrEmpty(entry.Name)) continue;
-                string path = Path.GetFullPath(Path.Combine(destination, entry.FullName));
+                string path = Path.GetFullPath(Path.Combine(destination, entry.FullName.Replace('/', Path.DirectorySeparatorChar)));
                 if (!path.StartsWith(destination + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
                     throw new InvalidDataException("Đường dẫn gói không hợp lệ.");
                 Directory.CreateDirectory(Path.GetDirectoryName(path));
