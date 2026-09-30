@@ -39,6 +39,21 @@ static class Launcher {
         if (!String.Equals(Hash(path), Manifest["sha256"], StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException("Bộ chạy tải về không khớp SHA-256. Chưa chạy tệp này; hãy thử tải lại.");
     }
+    static void ExtractRuntime(string archivePath, string destination) {
+        string root = Path.GetFullPath(destination).TrimEnd(Path.DirectorySeparatorChar);
+        Directory.CreateDirectory(root);
+        using (var archive = ZipFile.OpenRead(archivePath)) {
+            foreach (var entry in archive.Entries) {
+                string path = Path.GetFullPath(Path.Combine(root, entry.FullName));
+                if (!path.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidDataException("Đường dẫn ZIP vượt thư mục bộ chạy.");
+                if (String.IsNullOrEmpty(entry.Name)) { Directory.CreateDirectory(path); continue; }
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
+                // Upstream ZIP contains case-colliding translations; match 7-Zip's last-entry-wins behavior.
+                entry.ExtractToFile(path, true);
+            }
+        }
+    }
     static string FindRuntimeRoot(string folder) {
         var matches = Directory.GetDirectories(folder, "addons", SearchOption.AllDirectories).Where(p => p.Contains("org.gvsig.scripting.app.mainplugin") && new DirectoryInfo(p).Parent.Name == "scripts").ToArray();
         if (matches.Length != 1) throw new IOException("Không xác định được thư mục Scripting của gvSIG.");
@@ -110,7 +125,7 @@ static class Launcher {
                 string zip = Path.GetFullPath(args[1]);
                 string testFolder = Path.Combine(Path.GetDirectoryName(zip), "runtime dotnet test");
                 VerifyArchive(zip);
-                ZipFile.ExtractToDirectory(zip, testFolder);
+                ExtractRuntime(zip, testFolder);
                 InstallAddon(testFolder);
                 StartGIS(testFolder, Path.GetFullPath(args[2]));
                 return 0;
@@ -172,7 +187,7 @@ static class Launcher {
                         string staging=Runtime+".preparing";
                         if (Directory.Exists(staging)) Directory.Delete(staging,true);
                         Directory.CreateDirectory(staging);
-                        ZipFile.ExtractToDirectory(download,staging);
+                        ExtractRuntime(download,staging);
                         FindRuntimeRoot(staging); FindLauncher(staging);
                         if (Directory.Exists(Runtime)) throw new IOException("Thư mục bộ chạy cũ chưa hoàn tất: "+Runtime+". Đổi tên thư mục đó rồi thử lại.");
                         File.WriteAllText(Path.Combine(staging,".vfmgis-ready"),Manifest["sha256"]);
