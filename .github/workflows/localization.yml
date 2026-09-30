@@ -22,7 +22,18 @@ jobs:
           if (!(Test-Path runtime.zip)) { curl.exe -fL --retry 3 -o runtime.zip $m.url }
           if ((Get-FileHash runtime.zip -Algorithm SHA256).Hash.ToLower() -ne $m.sha256) { throw 'Runtime checksum mismatch' }
           python localization/inventory.py runtime.zip inventory
+      - name: Inspect native locale API
+        shell: pwsh
+        run: |
+          7z x runtime.zip -oruntime -y | Select-Object -Last 4
+          $root = (Get-ChildItem runtime -Directory | Select-Object -First 1).FullName
+          $jar = (Get-ChildItem "$root/lib" -Filter 'org.gvsig.andami-*.jar' | Select-Object -First 1).FullName
+          javap -p -c -classpath $jar org.gvsig.andami.LocaleManager org.gvsig.andami.Launcher > inventory/locale-api.txt
+      - name: Seed Vietnamese draft from public upstream UI strings
+        shell: pwsh
+        run: python localization/seed_translation.py inventory/resources.zip inventory/vi-draft.json
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: native-localization-inventory
           path: inventory
