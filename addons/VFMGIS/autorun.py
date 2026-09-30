@@ -5,7 +5,7 @@ from addons.VFMGIS.actions import selfRegister
 
 def main(*args):
     selfRegister()
-    from java.lang import System
+    from java.lang import System, Throwable
     if System.getenv('VFMGIS_AUTOSTART') != '1':
         return
     from javax.swing import Timer
@@ -28,7 +28,7 @@ def main(*args):
             else:
                 from addons.VFMGIS.ui import main as launch
                 launch()
-        except Exception:
+        except (Exception, Throwable):
             import traceback
             from javax.swing import JOptionPane
             if state['attempts'] < 90 and event.getSource().isRunning():

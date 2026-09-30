@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import os
 import gvsig
 from gvsig import geom
+from java.lang import Throwable
 from addons.VFMGIS.core import MAX_FEATURES, positive, require_metric, fresh_output
 try:
     from org.locationtech.jts.io import WKTReader
@@ -22,7 +23,7 @@ def dispose(value):
 def read_rows(layer, expression=None, limit=MAX_FEATURES):
     if not hasattr(layer, 'features'):
         raise ValueError('Chọn một lớp vector trong danh sách lớp.')
-    features = layer.features(expression) if expression else layer.features()
+    features = layer.getFeatureStore().features(expression) if expression else layer.features()
     iterator = None
     try:
         if features.getSize() > limit:
@@ -41,7 +42,7 @@ def read_rows(layer, expression=None, limit=MAX_FEATURES):
 
 
 def table_rows(layer, expression=None, limit=2000):
-    features = layer.features(expression) if expression else layer.features()
+    features = layer.getFeatureStore().features(expression) if expression else layer.features()
     iterator = None
     try:
         count = features.getSize()
@@ -60,7 +61,7 @@ def table_rows(layer, expression=None, limit=2000):
 
 
 def select_expression(layer, expression):
-    features = layer.features(expression)  # gvSIG expression parser, never Python eval.
+    features = layer.getFeatureStore().features(expression)  # gvSIG expression parser, never Python eval.
     iterator = None
     try:
         if features.getSize() > MAX_FEATURES:
@@ -171,7 +172,7 @@ def process(layer, operation, path, crs, distance=None, mask=None, target_crs=No
         for values in output_rows:
             output.append(values)
         output.commit()
-    except Exception:
+    except (Exception, Throwable):
         # Do not silently present a partially written file as a successful result.
         raise RuntimeError('Không ghi xong kết quả. Dữ liệu nguồn vẫn nguyên vẹn; '
                            'kiểm tra và xóa bộ tệp đầu ra chưa hoàn tất: ' + path)

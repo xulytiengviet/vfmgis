@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import math
 import os
 import traceback
+from java.lang import Throwable
 import gvsig
 from gvsig import geom
 from java.awt import BorderLayout, Color, Dimension, FlowLayout, Font, GridLayout
@@ -37,7 +38,7 @@ class Job(SwingWorker):
         self.owner.set_busy(False)
         try:
             self.callback(self.get())
-        except Exception as error:
+        except (Exception, Throwable) as error:
             self.owner.error(error)
 
 
@@ -79,7 +80,7 @@ class MapMouse(MouseAdapter):
                     a = owner.measure_start
                     owner.measure_start = None
                     owner.info('Khoảng cách phẳng: %.3f mét' % math.hypot(end[0]-a[0], end[1]-a[1]))
-            except Exception as error:
+            except (Exception, Throwable) as error:
                 owner.error(error)
         self.start = None
 
@@ -148,7 +149,7 @@ class Workspace(object):
             return
         try:
             callback()
-        except Exception as error:
+        except (Exception, Throwable) as error:
             self.error(error)
 
     def info(self, message):
@@ -519,7 +520,7 @@ class Workspace(object):
             window.refresh_layers()
             window.set_extent(data['extent'])
             window.project_path, window.dirty = path, False
-        except Exception:
+        except (Exception, Throwable):
             window.map.dispose()
             window.project.remove(window.view)
             window.frame.dispose()

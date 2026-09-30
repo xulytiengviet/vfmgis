@@ -41,7 +41,7 @@ jobs:
         shell: pwsh
         run: |
           New-Item dist -ItemType Directory -Force | Out-Null
-          $files = Get-ChildItem runtime -Recurse -Filter '*.py' | Where-Object { $_.Name -match 'feature|layer|selection' }
+          $files = Get-ChildItem runtime -Recurse -Filter '*.py' | Where-Object { $_.Name -match 'feature|layer|selection|table|project|view' }
           Compress-Archive -Path $files.FullName -DestinationPath dist/scripting-api.zip
       - name: Build Windows launcher
         shell: pwsh
