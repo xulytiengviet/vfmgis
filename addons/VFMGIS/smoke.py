@@ -28,6 +28,7 @@ def run():
     stage('attribute filter')
     headers, values, count = engine.table_rows(layer, 'ID > 2')
     assert count == 4 and len(values) == 4
+    stage('selection')
     assert engine.select_expression(layer, 'ID > 4') == 2
     for operation in ('buffer', 'dissolve', 'centroid', 'reproject'):
         stage(operation)

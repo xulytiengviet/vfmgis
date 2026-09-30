@@ -69,6 +69,20 @@ def _run(report):
 def run(report):
     # DAL operations must use a worker, as they do in the application.
     from threading import Thread
+    def watchdog():
+        import time
+        time.sleep(75)
+        from java.lang import Thread as JavaThread
+        with io.open(report, 'w', encoding='utf-8') as output:
+            output.write('FAIL: integration stalled; thread stacks\n')
+            for thread, stack in JavaThread.getAllStackTraces().entrySet():
+                output.write(unicode(thread.getName()) + '\n')
+                for frame in stack:
+                    output.write('  ' + unicode(frame) + '\n')
+        System.exit(1)
+    monitor = Thread(target=watchdog)
+    monitor.setDaemon(True)
+    monitor.start()
     worker = Thread(target=_run, args=(report,))
     worker.setDaemon(True)
     worker.start()

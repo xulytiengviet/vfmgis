@@ -37,10 +37,15 @@ def read_rows(layer, expression=None, limit=MAX_FEATURES):
 
 
 def table_rows(layer, expression=None, limit=2000):
+    from addons.VFMGIS.smoke import stage
+    stage('table query')
     features = layer.features(expression) if expression else layer.features()
+    stage('table size')
     try:
         count = features.getSize()
+        stage('table fields')
         fields = [a.getName() for a in layer.getSchema() if not a.getName() == layer.getSchema().getDefaultGeometryAttributeName()]
+        stage('table rows')
         rows = []
         for f in features:
             if len(rows) >= limit:

@@ -37,6 +37,12 @@ jobs:
         with:
           path: runtime.zip
           key: gvsig-win-3335-2a56c62bd027ecf3
+      - name: Capture scripting API for diagnostics
+        shell: pwsh
+        run: |
+          New-Item dist -ItemType Directory -Force | Out-Null
+          $files = Get-ChildItem runtime -Recurse -Filter '*.py' | Where-Object { $_.Name -match 'feature|layer|selection' }
+          Compress-Archive -Path $files.FullName -DestinationPath dist/scripting-api.zip
       - name: Build Windows launcher
         shell: pwsh
         run: ./windows/build.ps1
