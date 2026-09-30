@@ -1,8 +1,5 @@
 name: Native gvSIG localization inventory
 on:
-  push:
-    branches: [main]
-    paths: ['localization/**', '.github/workflows/localization.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -29,9 +26,6 @@ jobs:
           $root = (Get-ChildItem runtime -Directory | Select-Object -First 1).FullName
           $jar = (Get-ChildItem "$root/lib" -Filter 'org.gvsig.andami-*.jar' | Select-Object -First 1).FullName
           javap -p -c -classpath $jar org.gvsig.andami.LocaleManager org.gvsig.andami.Launcher > inventory/locale-api.txt
-      - name: Seed Vietnamese draft from public upstream UI strings
-        shell: pwsh
-        run: python localization/seed_translation.py inventory/resources.zip inventory/vi-draft.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -1,11 +1,11 @@
-Bản 0.1.2 sửa lỗi `PathTooLongException` khi giải nén trên máy Windows người dùng.
+# VFMGIS 0.2.0 preview — giao diện gvSIG gốc tiếng Việt
 
-Rút ngắn thư mục runtime, bỏ thư mục bọc dài trong ZIP và khởi tạo hỗ trợ đường dẫn dài trước mọi thao tác đường dẫn. EXE tự chứa thông tin .NET Framework 4.8 và manifest; không cần tạo tệp `.config` thủ công. Nếu tệp runtime lần trước đã tải đầy đủ và đúng SHA-256, bản mới dùng lại để tránh tải lại 503 MB. Giữ nguyên thư mục cũ và dữ liệu người dùng.
+Tải `VFMGIS-Windows.exe`, đóng phiên gvSIG cũ rồi nhấp đúp. Lần đầu tự tải gvSIG 2.6.0 build 3335 và Java (~503 MB), kiểm tra SHA-256, cài riêng vào `%LOCALAPPDATA%\VFMGIS\r3` và mở giao diện gvSIG gốc với `--language=vi`. Không cần cài Java/Python hoặc sửa Registry.
 
-Tải **VFMGIS-Windows.exe** rồi nhấp đúp trên Windows 10/11 64-bit.
+Thay đổi từ 0.1.2: bỏ tự mở cửa sổ Swing riêng; dùng khung nhìn, menu, bảng thuộc tính và công cụ gvSIG nguyên bản. Bổ sung tài nguyên tiếng Việt và nhãn Swing. Giữ nguyên bộ chạy r2 và dữ liệu cũ. Dự án sử dụng `.gvsproj` gốc; `.vfm` cũ chưa được chuyển đổi tự động.
 
-Lần đầu cần Internet để tải gvSIG 2.6.0 và Java đi kèm từ máy chủ chính thức (khoảng 503 MB). Chương trình kiểm tra SHA-256 của runtime, tự giải nén vào LocalAppData và mở VFMGIS. Không cần cài Python, Java hoặc chép plugin thủ công. Những lần sau dùng runtime đã lưu.
+Độ phủ tài nguyên: 19.180/19.180 mục trong 131 bộ, có kiểm tra biến thay thế. 2.213 mục đã rà soát, 16.927 mục nháp dịch máy, 40 giá trị kỹ thuật. **Chưa phải bản Việt hóa toàn bộ sản phẩm 100% đã được kiểm chứng**: còn chuỗi viết trực tiếp trong mã, tài nguyên bên thứ ba và rà soát toàn bộ hộp thoại. Xem `localization-report.json`.
 
-Đây là launcher VFMGIS dựa trên gvSIG; bản chạy vẫn dùng lõi gvSIG. Mã nguồn launcher và phần mở rộng ở repository và có trong gói ZIP. Tệp EXE chưa được ký số; không tắt các cơ chế bảo vệ của Windows.
+Bản preview chỉ được tải lên khi kiểm thử Windows đạt: giao diện/menu gốc tiếng Việt, bản đồ Shapefile và xử lý dữ liệu thật. `windows-native.png` chụp runtime kiểm thử. EXE chưa ký số; không cần tắt phần mềm bảo vệ Windows. Lần đầu cần Internet, các lần sau dùng runtime đã cài.
 
-`VFMGIS-Windows.zip` chứa cùng EXE và tài liệu. Bộ tải giữ nguyên runtime gvSIG tải từ nguồn chính thức; không phát hành lại runtime trong EXE/ZIP này.
+GPL-3.0-or-later; lõi gvSIG thuộc gvSIG Association và các tác giả gốc, không thay thế thông tin bản quyền.

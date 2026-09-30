@@ -23,11 +23,11 @@ def main(*args):
             event.getSource().stop()
             report = System.getenv('VFMGIS_TEST_REPORT')
             if report:
-                from addons.VFMGIS.runtime_check import run
+                from addons.VFMGIS.native_check import run
                 run(report)
             else:
-                from addons.VFMGIS.ui import main as launch
-                launch()
+                from addons.VFMGIS.native import start
+                start()
         except (Exception, Throwable):
             import traceback
             from javax.swing import JOptionPane

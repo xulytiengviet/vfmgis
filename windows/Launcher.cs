@@ -17,10 +17,10 @@ using System.Web.Script.Serialization;
 using System.Windows.Forms;
 
 [assembly: System.Runtime.Versioning.TargetFramework(".NETFramework,Version=v4.8")]
-[assembly: AssemblyVersion("0.1.2.0")]
+[assembly: AssemblyVersion("0.2.0.0")]
 
 static class Launcher {
-    const string Version = "0.1.2";
+    const string Version = "0.2.0";
     static readonly string Store;
     static readonly string Runtime;
     static Launcher() {
@@ -28,7 +28,7 @@ static class Launcher {
         AppContext.SetSwitch("Switch.System.IO.UseLegacyPathHandling", false);
         AppContext.SetSwitch("Switch.System.IO.BlockLongPaths", false);
         Store = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "VFMGIS");
-        Runtime = Path.Combine(Store, "r2");
+        Runtime = Path.Combine(Store, "r3");
     }
     static Dictionary<string,string> Manifest;
     static FileStream Lock;
@@ -97,6 +97,20 @@ static class Launcher {
             }
         }
     }
+    static void InstallLocale(string folder) {
+        string root = LongPath(folder).TrimEnd(Path.DirectorySeparatorChar);
+        using (var archive = new ZipArchive(Resource("locale.zip"), ZipArchiveMode.Read)) {
+            foreach (var entry in archive.Entries) {
+                if (String.IsNullOrEmpty(entry.Name)) continue;
+                string name = entry.FullName.Replace('/', Path.DirectorySeparatorChar);
+                string path = Path.GetFullPath(Path.Combine(root, name));
+                if (!path.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidDataException("Đường dẫn bản dịch không hợp lệ.");
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
+                entry.ExtractToFile(path, true);
+            }
+        }
+    }
     [DllImport("kernel32.dll", CharSet=CharSet.Unicode)]
     static extern uint GetShortPathName(string path, StringBuilder buffer, uint length);
     static string ShortPath(string path) {
@@ -115,25 +129,31 @@ static class Launcher {
         return file.StartsWith(@"\\?\", StringComparison.Ordinal) ? file.Substring(4) : file;
     }
     static void StartGIS(string folder, string report) {
+        InstallLocale(folder);
         string launch = ShortPath(FindLauncher(folder));
         bool bat = Path.GetExtension(launch).Equals(".bat", StringComparison.OrdinalIgnoreCase);
         var info = new ProcessStartInfo {
             FileName = bat ? Environment.GetEnvironmentVariable("COMSPEC") : launch,
-            Arguments = bat ? "/d /c \"\"" + launch + "\"\"" : "",
+            Arguments = bat ? "/d /c \"\"" + launch + "\"\"" : "--language=vi",
             WorkingDirectory = Path.GetDirectoryName(launch),
             UseShellExecute = false,
             CreateNoWindow = true
         };
+        info.EnvironmentVariables["GVSIG_PARAMS"] = "gvSIG gvSIG/extensiones --language=vi";
         info.EnvironmentVariables["VFMGIS_AUTOSTART"] = "1";
         if (report != null) info.EnvironmentVariables["VFMGIS_TEST_REPORT"] = report;
         if (report != null) File.WriteAllText(report + ".launch", "Launcher: " + launch + "\nWorking directory: " + info.WorkingDirectory);
         Process.Start(info);
     }
     static void VerifySelf() {
+        using (var locale = new ZipArchive(Resource("locale.zip"), ZipArchiveMode.Read)) {
+            if (locale.GetEntry("i18n/translations.all/text_vi.properties") == null)
+                throw new InvalidDataException("Thiếu bản dịch tiếng Việt của gvSIG.");
+        }
         if (Manifest["sha256"].Length != 64 || !(Manifest["url"].StartsWith("https://downloads.gvsig.org/") || Manifest["url"].StartsWith("http://downloads.gvsig.org/")))
             throw new InvalidDataException("Thông tin bộ chạy không hợp lệ.");
         using (var archive = new ZipArchive(Resource("addon.zip"), ZipArchiveMode.Read)) {
-            foreach (var name in new[] { "autorun.py", "autorun.inf", "ui.py", "engine.py", "core.py", "sample.py", "smoke.py", "runtime_check.py" })
+            foreach (var name in new[] { "autorun.py", "autorun.inf", "ui.py", "engine.py", "core.py", "sample.py", "smoke.py", "runtime_check.py", "native.py", "native_check.py" })
                 if (archive.GetEntry(name) == null) throw new InvalidDataException("Thiếu " + name);
         }
     }
@@ -161,7 +181,7 @@ static class Launcher {
             }
             if (args.Length == 3 && args[0] == "--test-archive") {
                 string zip = Path.GetFullPath(args[1]);
-                string testFolder = Path.Combine(Path.GetDirectoryName(zip), "runtime dotnet test", "r2");
+                string testFolder = Path.Combine(Path.GetDirectoryName(zip), "runtime dotnet test", "r3");
                 VerifyArchive(zip);
                 ExtractRuntime(zip, testFolder);
                 InstallAddon(testFolder);
@@ -193,7 +213,7 @@ static class Launcher {
         readonly Button retry = new Button();
         bool busy;
         public SetupWindow() {
-            Text = "VFMGIS 0.1.2 · Khởi động GIS tiếng Việt";
+            Text = "VFMGIS 0.2.0 · Khởi động GIS tiếng Việt";
             Size = new Size(570, 275); StartPosition = FormStartPosition.CenterScreen;
             FormBorderStyle = FormBorderStyle.FixedDialog; MaximizeBox = false;
             Font = new Font("Segoe UI", 10); BackColor = Color.White;

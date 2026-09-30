@@ -12,13 +12,14 @@ $compileArgs = @('/nologo', '/target:winexe', '/platform:anycpu', '/optimize+', 
     '/reference:System.IO.Compression.dll', '/reference:System.IO.Compression.FileSystem.dll',
     '/reference:System.Web.Extensions.dll',
     ('/resource:' + $bundle + ',addon.zip'),
+    ('/resource:' + (Join-Path $PWD 'dist/locale.zip') + ',locale.zip'),
     ('/resource:' + (Join-Path $PWD 'windows/runtime.json') + ',runtime.json'),
     (Join-Path $PWD 'windows/Launcher.cs'))
 & $compiler @compileArgs
 if ($LASTEXITCODE -ne 0) { throw 'C# compilation failed' }
 $zip = Join-Path $PWD 'dist/VFMGIS-Windows.zip'
 if (Test-Path $zip) { Remove-Item $zip }
-Compress-Archive -Path dist/VFMGIS-Windows.exe, windows/RELEASE.md, LICENSE, THIRD_PARTY.md, windows/Launcher.cs, addons -DestinationPath $zip
+Compress-Archive -Path dist/VFMGIS-Windows.exe, windows/RELEASE.md, LICENSE, THIRD_PARTY.md, windows/Launcher.cs, addons, localization, dist/localization-report.json -DestinationPath $zip
 Get-ChildItem dist -Include '*.exe','VFMGIS-Windows.zip' -File -Recurse | ForEach-Object {
     '{0}  {1}' -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name
 } | Set-Content dist/SHA256SUMS.txt

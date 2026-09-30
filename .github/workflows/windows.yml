@@ -2,7 +2,7 @@ name: Windows executable and public download
 on:
   push:
     branches: [main]
-    paths: ['windows/**', 'addons/**', '.github/workflows/windows.yml']
+    paths: ['windows/**', 'addons/**', 'localization/**', '.github/workflows/windows.yml']
   workflow_dispatch:
 permissions:
   contents: write
@@ -37,6 +37,12 @@ jobs:
         with:
           path: runtime.zip
           key: gvsig-win-3335-2a56c62bd027ecf3
+      - name: Build and audit Vietnamese native resources
+        shell: pwsh
+        run: |
+          python localization/inventory.py runtime.zip inventory
+          python localization/build.py inventory/resources.zip dist
+          if ($LASTEXITCODE -ne 0) { throw 'Localization audit failed' }
       - name: Build Windows launcher
         shell: pwsh
         run: ./windows/build.ps1
@@ -69,6 +75,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = 'windows-v0.1.2-' + $env:GITHUB_RUN_NUMBER
-          gh release create $tag dist/VFMGIS-Windows.exe dist/VFMGIS-Windows.zip dist/SHA256SUMS.txt windows/runtime.json --target $env:GITHUB_SHA --title 'VFMGIS Windows 0.1.2' --notes-file windows/RELEASE.md --latest
+          $tag = 'windows-v0.2.0-preview-' + $env:GITHUB_RUN_NUMBER
+          gh release create $tag dist/VFMGIS-Windows.exe dist/VFMGIS-Windows.zip dist/SHA256SUMS.txt dist/localization-report.json dist/windows-native.png windows/runtime.json --target $env:GITHUB_SHA --title 'VFMGIS 0.2.0 preview · giao diện gvSIG gốc tiếng Việt' --notes-file windows/RELEASE.md --prerelease
           if ($LASTEXITCODE -ne 0) { throw 'Release upload failed' }
