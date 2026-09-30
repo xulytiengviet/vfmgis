@@ -82,7 +82,7 @@ static class Launcher {
         Process.Start(info);
     }
     static void VerifySelf() {
-        if (Manifest["sha256"].Length != 64 || !Manifest["url"].StartsWith("https://downloads.gvsig.org/"))
+        if (Manifest["sha256"].Length != 64 || !(Manifest["url"].StartsWith("https://downloads.gvsig.org/") || Manifest["url"].StartsWith("http://downloads.gvsig.org/")))
             throw new InvalidDataException("Thông tin bộ chạy không hợp lệ.");
         using (var archive = new ZipArchive(Resource("addon.zip"), ZipArchiveMode.Read)) {
             foreach (var name in new[] { "autorun.py", "autorun.inf", "ui.py", "engine.py", "core.py", "sample.py", "smoke.py", "runtime_check.py" })
