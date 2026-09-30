@@ -1,0 +1,59 @@
+name: Windows executable and public download
+on:
+  push:
+    branches: [main]
+    paths: ['windows/**', 'addons/**', '.github/workflows/windows.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: windows-release
+  cancel-in-progress: false
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download official gvSIG runtime and inspect layout
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $url = 'https://downloads.gvsig.org/download/gvsig-desktop-testing/dists/2.6.0/builds/3335/gvSIG-desktop-2.6.0-3335-final-win-x86_64.zip'
+          curl.exe --fail --location --retry 3 --connect-timeout 30 --max-time 900 --output runtime.zip $url
+          if ($LASTEXITCODE -ne 0) { throw 'Official runtime download failed' }
+          $hash = (Get-FileHash runtime.zip -Algorithm SHA256).Hash.ToLower()
+          @{ url=$url; sha256=$hash; version='gvSIG 2.6.0 build 3335 Windows x64' } | ConvertTo-Json | Set-Content windows/runtime.json
+          7z x runtime.zip -oruntime -y | Select-Object -Last 4
+          if ($LASTEXITCODE -ne 0) { throw 'Runtime extraction failed' }
+          Get-ChildItem runtime -Recurse -Include '*.exe','*.bat','autorun.py','jython*.jar' | ForEach-Object { $_.FullName }
+          Get-ChildItem runtime -Recurse -Filter 'gvsig*.bat' | ForEach-Object { Get-Content $_.FullName }
+      - name: Build Windows launcher
+        shell: pwsh
+        run: ./windows/build.ps1
+      - name: Verify launcher bundle
+        shell: pwsh
+        run: |
+          $p = Start-Process dist/VFMGIS-Windows.exe -ArgumentList '--verify' -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw 'Executable self-test failed' }
+      - name: Test bundled gvSIG integration
+        shell: pwsh
+        run: ./windows/test-runtime.ps1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-build-evidence
+          path: |
+            dist/*
+            runtime-test.txt
+            runtime-test-error.txt
+            windows/runtime.json
+      - name: Publish direct public downloads
+        if: success()
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = 'windows-v0.1.1-' + $env:GITHUB_RUN_NUMBER
+          gh release create $tag dist/VFMGIS-Windows.exe dist/VFMGIS-Windows.zip dist/SHA256SUMS.txt windows/runtime.json --target $env:GITHUB_SHA --title 'VFMGIS Windows 0.1.1' --notes-file windows/RELEASE.md --latest
+          if ($LASTEXITCODE -ne 0) { throw 'Release upload failed' }

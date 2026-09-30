@@ -8,7 +8,7 @@ from addons.VFMGIS import engine
 from addons.VFMGIS.sample import create_sample
 
 
-def main(*args):
+def run():
     root = tempfile.mkdtemp(prefix='vfmgis-smoke-')
     layer = create_sample(os.path.join(root, 'sample.shp'))
     rows = engine.read_rows(layer)
@@ -28,5 +28,9 @@ def main(*args):
                                          'EPSG:32648', mask=layer)
     assert count == 6
     assert abs(sum(engine.jts(g).getArea() for _, g in engine.read_rows(output)) - 2160000) < 0.01
+    return root
+
+
+def main(*args):
     from gvsig.commonsdialog import msgbox
-    msgbox('Kiểm tra tích hợp thành công. Dữ liệu kiểm tra: ' + root)
+    msgbox('Kiểm tra tích hợp thành công. Dữ liệu kiểm tra: ' + run())
