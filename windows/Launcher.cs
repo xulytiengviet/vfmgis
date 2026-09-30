@@ -126,6 +126,7 @@ static class Launcher {
         };
         info.EnvironmentVariables["VFMGIS_AUTOSTART"] = "1";
         if (report != null) info.EnvironmentVariables["VFMGIS_TEST_REPORT"] = report;
+        if (report != null) File.WriteAllText(report + ".launch", "Launcher: " + launch + "\nWorking directory: " + info.WorkingDirectory);
         Process.Start(info);
     }
     static void VerifySelf() {
@@ -160,7 +161,7 @@ static class Launcher {
             }
             if (args.Length == 3 && args[0] == "--test-archive") {
                 string zip = Path.GetFullPath(args[1]);
-                string testFolder = Path.Combine(Path.GetDirectoryName(zip), "runtime dotnet test");
+                string testFolder = Path.Combine(Path.GetDirectoryName(zip), "runtime dotnet test", "r2");
                 VerifyArchive(zip);
                 ExtractRuntime(zip, testFolder);
                 InstallAddon(testFolder);

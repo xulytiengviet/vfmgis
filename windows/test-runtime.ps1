@@ -11,10 +11,11 @@ if ($p.ExitCode -ne 0) {
     if (Test-Path $report) { Get-Content $report }
     throw 'Runtime preparation failed'
 }
-$end = (Get-Date).AddMinutes(5)
+$end = (Get-Date).AddMinutes(3)
 while ((Get-Date) -lt $end -and -not (Test-Path $report)) { Start-Sleep -Seconds 3 }
 if (-not (Test-Path $report)) {
     if (Test-Path ($report + '.progress')) { Get-Content ($report + '.progress') }
+    if (Test-Path ($report + '.launch')) { Get-Content ($report + '.launch') }
     Get-ChildItem 'runtime*' -Recurse -Filter '*.log' | ForEach-Object { Write-Host $_.FullName; Get-Content $_.FullName -Tail 60 }
     Add-Type -AssemblyName System.Windows.Forms
     Add-Type -AssemblyName System.Drawing
@@ -25,7 +26,7 @@ if (-not (Test-Path $report)) {
     $shot.Save((Join-Path $PWD 'dist/windows-timeout.png'))
     $graphics.Dispose(); $shot.Dispose()
     Get-Process | Where-Object { $_.ProcessName -match 'java|gvsig' } | Format-Table Id,ProcessName,MainWindowTitle
-    throw 'gvSIG did not report integration results within 5 minutes'
+    throw 'gvSIG did not report integration results within 3 minutes'
 }
 if (Test-Path ($report + '.progress')) { Get-Content ($report + '.progress') }
 Get-Content $report
