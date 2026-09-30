@@ -2,7 +2,7 @@
 
 VFMGIS 0.2 dùng **lõi và giao diện desktop nguyên bản của gvSIG 2.6.0 build 3335**. Menu, khung nhìn, bảng thuộc tính, trình biên tập, bố cục in và công cụ GIS đều là thành phần gvSIG. Không mở cửa sổ Swing VFMGIS riêng của phiên bản 0.1 khi khởi động.
 
-**Trạng thái: bản xem trước, chưa được chứng nhận Việt hóa toàn bộ sản phẩm 100%.** Bộ dịch bao phủ 19.180/19.180 mục trong 131 bộ `text[_locale].properties` của runtime gốc. Đây là độ phủ tài nguyên, không phải tỷ lệ kiểm thử tất cả màn hình. Bản dịch gồm 2.213 mục đã rà soát, 16.927 mục từ bản dịch máy và 40 giá trị kỹ thuật giữ nguyên. Chuỗi viết trực tiếp trong mã, tài nguyên bên thứ ba và mọi nhánh lỗi vẫn cần rà soát. [Báo cáo và phạm vi](localization/README.md).
+**Trạng thái: bản xem trước, chưa được chứng nhận Việt hóa toàn bộ sản phẩm 100%.** Bộ dịch bao phủ 19.180/19.180 mục trong 131 bộ `text[_locale].properties` của runtime gốc. Đây là độ phủ tài nguyên, không phải tỷ lệ kiểm thử tất cả màn hình. Bản dịch gồm 2.342 mục đã rà soát, 16.798 mục từ bản dịch máy và 40 giá trị kỹ thuật giữ nguyên. Chuỗi viết trực tiếp trong mã, tài nguyên bên thứ ba và mọi nhánh lỗi vẫn cần rà soát. [Báo cáo và phạm vi](localization/README.md).
 
 ## Kiến trúc
 

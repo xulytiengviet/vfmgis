@@ -20,7 +20,7 @@ Tệp phát hành `localization-report.json` thống kê từng loại và liệ
 
 ## Cổng kiểm tra và giới hạn
 
-Độ phủ hiện tại: 19.180/19.180 mục (100% trong phạm vi 131 bộ tài nguyên đã kiểm kê). 2.213 mục đã rà soát; 16.927 mục nháp máy; 40 giá trị kỹ thuật.
+Độ phủ hiện tại: 19.180/19.180 mục (100% trong phạm vi 131 bộ tài nguyên đã kiểm kê). 2.342 mục đã rà soát; 16.798 mục nháp máy; 40 giá trị kỹ thuật.
 
 **Chưa đồng nghĩa Việt hóa toàn bộ sản phẩm 100%.** Công việc còn lại được ghi rõ trong `remaining_review` của báo cáo:
 

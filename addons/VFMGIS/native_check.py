@@ -12,7 +12,16 @@ from addons.VFMGIS.runtime_check import error_detail
 
 def run(report):
     def fail():
-        with io.open(report, 'w', encoding='utf-8') as f: f.write(error_detail())
+        detail = error_detail()
+        try:
+            from java.awt import Robot, Toolkit, Rectangle
+            from javax.imageio import ImageIO
+            from java.io import File
+            size = Toolkit.getDefaultToolkit().getScreenSize()
+            ImageIO.write(Robot().createScreenCapture(Rectangle(size)), 'png',
+                          File(os.path.join(os.path.dirname(report), 'dist', 'native-failure.png')))
+        except: pass
+        with io.open(report, 'w', encoding='utf-8') as f: f.write(detail)
         System.exit(1)
 
     def worker():

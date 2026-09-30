@@ -38,10 +38,10 @@ def main(*args):
             if report:
                 import io
                 with io.open(report, 'w', encoding='utf-8') as output:
-                    output.write(unicode(traceback.format_exc()))
+                    output.write(traceback.format_exc().decode('utf-8', 'replace'))
                 System.exit(1)
             else:
-                JOptionPane.showMessageDialog(None, u'Không mở được VFMGIS:\n' + unicode(traceback.format_exc()),
+                JOptionPane.showMessageDialog(None, u'Không mở được VFMGIS:\n' + traceback.format_exc().decode('utf-8', 'replace'),
                                               'VFMGIS', JOptionPane.ERROR_MESSAGE)
 
     timer = Timer(1500, ready)

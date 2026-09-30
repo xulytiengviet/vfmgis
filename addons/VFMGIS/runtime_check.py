@@ -12,7 +12,8 @@ def error_detail():
     import sys
     from java.lang import Throwable
     from java.io import StringWriter, PrintWriter
-    detail = unicode(traceback.format_exc())
+    raw = traceback.format_exc()
+    detail = raw if isinstance(raw, unicode) else raw.decode('utf-8', 'replace')
     exc = sys.exc_info()[1]
     if isinstance(exc, Throwable):
         buffer = StringWriter()
