@@ -1,6 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $report = Join-Path $PWD 'runtime-test.txt'
-$p = Start-Process dist/VFMGIS-Windows.exe -ArgumentList @('--test-archive', (Join-Path $PWD 'runtime.zip'), $report) -Wait -PassThru
+$p = Start-Process dist/VFMGIS-Windows.exe -ArgumentList @('--test-archive', (Join-Path $PWD 'runtime.zip'), $report) -PassThru
+if (-not $p.WaitForExit(120000)) { throw 'Launcher preparation timeout' }
 if ($p.ExitCode -ne 0) { throw 'Runtime preparation failed' }
 $end = (Get-Date).AddMinutes(5)
 while ((Get-Date) -lt $end -and -not (Test-Path $report)) { Start-Sleep -Seconds 3 }
