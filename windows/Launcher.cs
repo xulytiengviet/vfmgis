@@ -49,8 +49,13 @@ static class Launcher {
         if (!String.Equals(Hash(path), Manifest["sha256"], StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException("Bộ chạy tải về không khớp SHA-256. Chưa chạy tệp này; hãy thử tải lại.");
     }
+    static string LongPath(string path) {
+        string full = Path.GetFullPath(path);
+        if (full.StartsWith(@"\\?\", StringComparison.Ordinal)) return full;
+        return full.StartsWith(@"\\", StringComparison.Ordinal) ? @"\\?\UNC\" + full.Substring(2) : @"\\?\" + full;
+    }
     static void ExtractRuntime(string archivePath, string destination) {
-        string root = Path.GetFullPath(destination).TrimEnd(Path.DirectorySeparatorChar);
+        string root = LongPath(destination).TrimEnd(Path.DirectorySeparatorChar);
         Directory.CreateDirectory(root);
         using (var archive = ZipFile.OpenRead(archivePath)) {
             foreach (var entry in archive.Entries) {
@@ -73,7 +78,7 @@ static class Launcher {
         }
     }
     static string FindRuntimeRoot(string folder) {
-        var matches = Directory.GetDirectories(folder, "addons", SearchOption.AllDirectories).Where(p => p.Contains("org.gvsig.scripting.app.mainplugin") && new DirectoryInfo(p).Parent.Name == "scripts").ToArray();
+        var matches = Directory.GetDirectories(LongPath(folder), "addons", SearchOption.AllDirectories).Where(p => p.Contains("org.gvsig.scripting.app.mainplugin") && new DirectoryInfo(p).Parent.Name == "scripts").ToArray();
         if (matches.Length != 1) throw new IOException("Không xác định được thư mục Scripting của gvSIG.");
         return matches[0];
     }
@@ -101,12 +106,13 @@ static class Launcher {
     }
     static string FindLauncher(string folder) {
         var names = new[] { "gvsig.exe", "gvsig-desktop.exe", "gvsig.bat", "gvsig-desktop.bat" };
-        var files = Directory.GetFiles(folder, "*", SearchOption.AllDirectories)
+        var files = Directory.GetFiles(LongPath(folder), "*", SearchOption.AllDirectories)
             .Where(p => names.Contains(Path.GetFileName(p).ToLowerInvariant()))
             .OrderBy(p => p.Split(Path.DirectorySeparatorChar).Length)
             .ThenBy(p => Path.GetExtension(p).Equals(".exe", StringComparison.OrdinalIgnoreCase) ? 0 : 1).ToArray();
         if (files.Length == 0) throw new FileNotFoundException("Không tìm thấy chương trình khởi động gvSIG.");
-        return files[0];
+        string file = files[0];
+        return file.StartsWith(@"\\?\", StringComparison.Ordinal) ? file.Substring(4) : file;
     }
     static void StartGIS(string folder, string report) {
         string launch = ShortPath(FindLauncher(folder));
@@ -144,11 +150,12 @@ static class Launcher {
                 try {
                     string nested = temp;
                     while (nested.Length < 300) nested = Path.Combine(nested, "long-path-regression-test");
+                    nested = LongPath(nested);
                     Directory.CreateDirectory(nested);
                     string file = Path.GetFullPath(Path.Combine(nested, "test.txt"));
                     File.WriteAllText(file, "VFMGIS");
                     if (File.ReadAllText(file) != "VFMGIS") throw new IOException("Long path regression failed");
-                } finally { if (Directory.Exists(temp)) Directory.Delete(temp, true); }
+                } finally { if (Directory.Exists(temp)) Directory.Delete(LongPath(temp), true); }
                 return 0;
             }
             if (args.Length == 3 && args[0] == "--test-archive") {
@@ -216,7 +223,7 @@ static class Launcher {
                     await Task.Run(() => {
                         VerifyArchive(download);
                         string staging=Runtime+".tmp";
-                        if (Directory.Exists(staging)) Directory.Delete(staging,true);
+                        if (Directory.Exists(staging)) Directory.Delete(LongPath(staging),true);
                         Directory.CreateDirectory(staging);
                         ExtractRuntime(download,staging);
                         FindRuntimeRoot(staging); FindLauncher(staging);
