@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
@@ -58,6 +59,13 @@ static class Launcher {
             }
         }
     }
+    [DllImport("kernel32.dll", CharSet=CharSet.Unicode)]
+    static extern uint GetShortPathName(string path, StringBuilder buffer, uint length);
+    static string ShortPath(string path) {
+        var buffer = new StringBuilder(32768);
+        uint count = GetShortPathName(path, buffer, (uint)buffer.Capacity);
+        return count > 0 && count < buffer.Capacity ? buffer.ToString() : path;
+    }
     static string FindLauncher(string folder) {
         var names = new[] { "gvsig.exe", "gvsig-desktop.exe", "gvsig.bat", "gvsig-desktop.bat" };
         var files = Directory.GetFiles(folder, "*", SearchOption.AllDirectories)
@@ -68,7 +76,7 @@ static class Launcher {
         return files[0];
     }
     static void StartGIS(string folder, string report) {
-        string launch = FindLauncher(folder);
+        string launch = ShortPath(FindLauncher(folder));
         bool bat = Path.GetExtension(launch).Equals(".bat", StringComparison.OrdinalIgnoreCase);
         var info = new ProcessStartInfo {
             FileName = bat ? Environment.GetEnvironmentVariable("COMSPEC") : launch,
@@ -98,6 +106,15 @@ static class Launcher {
             Manifest = new JavaScriptSerializer().Deserialize<Dictionary<string,string>>(TextResource("runtime.json"));
             VerifySelf();
             if (args.Length > 0 && args[0] == "--verify") return 0;
+            if (args.Length == 3 && args[0] == "--test-archive") {
+                string zip = Path.GetFullPath(args[1]);
+                string testFolder = Path.Combine(Path.GetDirectoryName(zip), "runtime dotnet test");
+                VerifyArchive(zip);
+                ZipFile.ExtractToDirectory(zip, testFolder);
+                InstallAddon(testFolder);
+                StartGIS(testFolder, Path.GetFullPath(args[2]));
+                return 0;
+            }
             if (args.Length == 3 && args[0] == "--test-runtime") {
                 InstallAddon(Path.GetFullPath(args[1]));
                 StartGIS(Path.GetFullPath(args[1]), Path.GetFullPath(args[2]));

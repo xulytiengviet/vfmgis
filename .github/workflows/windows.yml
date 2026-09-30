@@ -50,7 +50,7 @@ jobs:
           name: windows-build-evidence
           path: |
             dist/*
-            runtime-test.txt
+            runtime-test.txt*
             runtime-test-error.txt
             windows/runtime.json
       - name: Publish direct public downloads
