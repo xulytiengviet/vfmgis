@@ -43,8 +43,17 @@ jobs:
           New-Item dist -ItemType Directory -Force | Out-Null
           $files = Get-ChildItem runtime -Recurse -Filter '*.py' | Where-Object { $_.Name -match 'feature|layer|selection|table|project|view' }
           Compress-Archive -Path $files.FullName -DestinationPath dist/scripting-api.zip
-          $mapJar = Get-ChildItem runtime -Recurse -Filter '*mapcontrol*.jar'
-          if ($mapJar) { javap -c -l -p -classpath ($mapJar.FullName -join ';') org.gvsig.fmap.mapcontrol.MapControl | Out-File dist/mapcontrol-api.txt }
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          foreach ($jar in (Get-ChildItem runtime -Recurse -Filter '*.jar')) {
+            $archive = [IO.Compression.ZipFile]::OpenRead($jar.FullName)
+            $found = $null -ne $archive.GetEntry('org/gvsig/fmap/mapcontrol/MapControl.class')
+            $archive.Dispose()
+            if ($found) {
+              Write-Host $jar.FullName
+              javap -c -l -p -classpath $jar.FullName org.gvsig.fmap.mapcontrol.MapControl | Out-File dist/mapcontrol-api.txt
+              break
+            }
+          }
       - name: Build Windows launcher
         shell: pwsh
         run: ./windows/build.ps1
