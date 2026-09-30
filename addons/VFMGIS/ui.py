@@ -107,7 +107,7 @@ class Workspace(object):
         self.view.setProjection(gvsig.getCRS(self.crs))
         self.map = MapControl()
         self.map.setMapContext(self.view.getMapContext())
-        self.map.setCurrentMapTool(None)
+        self.map.setCurrentMapTool('pan')
         self.frame = JFrame('VFMGIS 0.1 · GIS cơ bản | Long Ngo')
         self.frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE)
         self.frame.addWindowListener(Closing(self))
