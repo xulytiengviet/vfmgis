@@ -33,6 +33,10 @@ jobs:
           7z x runtime.zip -oruntime -y | Select-Object -Last 4
           if ($LASTEXITCODE -ne 0) { throw 'Runtime extraction failed' }
           Get-ChildItem runtime -Recurse -Filter 'gvsig-desktop.exe' | ForEach-Object { $_.FullName }
+      - uses: actions/cache/save@v4
+        with:
+          path: runtime.zip
+          key: gvsig-win-3335-2a56c62bd027ecf3
       - name: Build Windows launcher
         shell: pwsh
         run: ./windows/build.ps1
