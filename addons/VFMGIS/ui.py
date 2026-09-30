@@ -17,7 +17,7 @@ from javax.swing import (JFrame, JPanel, JLabel, JButton, JScrollPane, JSplitPan
     JToolBar, ListSelectionModel, SwingWorker, SwingUtilities, UIManager)
 from javax.swing.table import DefaultTableModel
 from javax.swing.filechooser import FileNameExtensionFilter
-from org.gvsig.fmap.mapcontrol import MapControl
+from org.gvsig.fmap.mapcontrol import MapControlLocator
 from addons.VFMGIS import core, engine
 
 
@@ -105,9 +105,10 @@ class Workspace(object):
         self.project = gvsig.currentProject()
         self.view = self.project.createView('VFMGIS')
         self.view.setProjection(gvsig.getCRS(self.crs))
-        self.map = MapControl()
+        self.map = MapControlLocator.getMapControlManager().createMapControl()
         self.map.setMapContext(self.view.getMapContext())
-        self.map.setCurrentMapTool('pan')
+        self.map.setCurrentMapTool(None)
+        self.map.setDefaultMouseWheelEnabled(False)
         self.frame = JFrame('VFMGIS 0.1 · GIS cơ bản | Long Ngo')
         self.frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE)
         self.frame.addWindowListener(Closing(self))

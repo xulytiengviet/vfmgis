@@ -50,7 +50,7 @@ jobs:
             $archive.Dispose()
             if ($found) {
               Write-Host $jar.FullName
-              javap -c -l -p -classpath $jar.FullName org.gvsig.fmap.mapcontrol.MapControl | Out-File dist/mapcontrol-api.txt
+              javap -c -l -p -classpath $jar.FullName org.gvsig.fmap.mapcontrol.MapControl org.gvsig.fmap.mapcontrol.MapControlManager | Out-File dist/mapcontrol-api.txt
               break
             }
           }
