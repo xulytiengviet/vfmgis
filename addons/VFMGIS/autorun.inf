@@ -1,0 +1,16 @@
+[Unit]
+type = Script
+name = autorun
+createdBy = Long Ngo
+version = 0.1.0
+
+[Script]
+main = main
+Lang = python
+enable = true
+isolationGroup = gvsig-base
+
+[properties]
+autorun.group.name = gvsig-base
+autorun.group.order = 1000
+autorun.order = 2600

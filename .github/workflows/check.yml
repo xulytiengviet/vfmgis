@@ -1,0 +1,22 @@
+name: Kiểm tra và đóng gói VFMGIS
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  source-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Kiểm thử mô hình dự án và kiểm tra dữ liệu
+        run: python -m unittest discover -s tests -v
+      - name: Kiểm tra cú pháp nguồn
+        run: python -m compileall -q addons tools
+      - name: Đóng gói mã nguồn phần mở rộng
+        run: python tools/package.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VFMGIS-0.1.0-gvsig-addon
+          path: dist/*.zip

@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+*$py.class
+dist/
+*.log

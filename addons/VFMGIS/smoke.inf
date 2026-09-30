@@ -1,0 +1,10 @@
+[Unit]
+type = Script
+name = VFMGIS smoke test
+version = 0.1.0
+
+[Script]
+main = main
+Lang = python
+enable = true
+isolationGroup = gvsig-base

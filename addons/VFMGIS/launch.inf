@@ -1,0 +1,12 @@
+[Unit]
+type = Script
+name = VFMGIS
+description = GIS desktop co ban bang tieng Viet
+createdBy = Long Ngo
+version = 0.1.0
+
+[Script]
+main = main
+Lang = python
+enable = true
+isolationGroup = gvsig-base
