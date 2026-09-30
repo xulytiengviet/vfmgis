@@ -76,6 +76,15 @@ def run(report):
                     with io.open(os.path.join(os.path.dirname(report), 'dist', 'native-menus.json'), 'w', encoding='utf-8') as f:
                         f.write(unicode(json.dumps(menus, ensure_ascii=False, indent=2)))
                     labels = [item['label'] for item in menus]
+                    def flatten(items):
+                        for item in items:
+                            yield item['label']
+                            for nested in flatten(item.get('items', [])): yield nested
+                    all_labels = list(flatten(menus))
+                    for leftover in ('_ Identify layer', 'Coordinate capture', 'Evaluate expression', 'Manage database workspace'):
+                        assert leftover not in all_labels, leftover
+                    for bad_term in ('Lời tiên tri', 'Ngói', 'Thác nước', 'Máy tính trường', 'Bật chụp nhanh'):
+                        assert bad_term not in all_labels, bad_term
                     assert 'Tệp' in labels, repr(labels)
                     assert 'Trợ giúp' in labels, repr(labels)
                     assert 'Công cụ' in labels, repr(labels)
@@ -88,7 +97,9 @@ def run(report):
                     graphics.setClip(0, 0, image.getWidth(), image.getHeight())
                     frame.paint(graphics)
                     graphics.dispose()
-                    ImageIO.write(image, 'png', File(os.path.join(os.path.dirname(report), 'dist', 'windows-native.png')))
+                    from java.awt import Toolkit, Rectangle
+                    screenshot = Robot().createScreenCapture(Rectangle(Toolkit.getDefaultToolkit().getScreenSize()))
+                    ImageIO.write(screenshot, 'png', File(os.path.join(os.path.dirname(report), 'dist', 'windows-native.png')))
                     with io.open(report, 'w', encoding='utf-8') as f:
                         f.write('PASS: original gvSIG desktop; native Vietnamese menus; native map view; real Shapefile rendering; Swing Vietnamese defaults; original DAL filter, selection, buffer, dissolve, centroid, reproject and clip.\n')
                         f.write('Menus: ' + ', '.join(labels) + '\n')

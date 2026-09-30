@@ -70,6 +70,8 @@ def build(archive, output):
     merged = {}
     for path, values in sorted(translated_bundles.items(), key=lambda item: 'translations.all/' in item[0]):
         merged.update(values)
+    # Some upstream config.xml menus reference keys absent from every bundle.
+    merged.update(read_json(BASE / 'extra-keys.json'))
     loose, jar_entries = {}, {}
     for path, values in translated_bundles.items():
         relative = path.split('/', 1)[1]

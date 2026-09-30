@@ -139,6 +139,7 @@ static class Launcher {
             UseShellExecute = false,
             CreateNoWindow = true
         };
+        info.EnvironmentVariables["JAVA_TOOL_OPTIONS"] = (info.EnvironmentVariables["JAVA_TOOL_OPTIONS"] ?? "") + " -Duser.language=vi -Duser.country=VN";
         info.EnvironmentVariables["GVSIG_PARAMS"] = "gvSIG gvSIG/extensiones --language=vi";
         info.EnvironmentVariables["VFMGIS_AUTOSTART"] = "1";
         if (report != null) info.EnvironmentVariables["VFMGIS_TEST_REPORT"] = report;
