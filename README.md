@@ -4,7 +4,7 @@
 
 VFMGIS là phần mở rộng desktop chạy **bên trong gvSIG Desktop**, dành cho sinh viên và người học GIS. Giao diện riêng viết bằng Java Swing/Jython, lấy cảm hứng từ bố cục ArcView: danh sách lớp bên trái, bản đồ giữa, bảng thuộc tính dưới. Dữ liệu được đọc và vẽ bằng lõi gvSIG thực; không có bản đồ giả hoặc dịch vụ backend.
 
-> **Trạng thái:** mã nguồn đã có; kiểm thử Python cho mô hình dự án và kiểm tra đầu vào đã chạy. Môi trường phát triển hiện chưa có gvSIG, nên **chưa xác nhận chạy đầu cuối trên gvSIG/Windows**. Đây chưa phải bản phát hành ổn định hoặc bộ cài `.exe` độc lập. Cần thực hiện [kiểm tra tích hợp](docs/KIEM_THU.md) trước khi dùng trong lớp học.
+> **Trạng thái:** đã phát hành trình khởi động Windows tự cài gvSIG/Java. Kiểm tra tích hợp tự động đã đạt trên Windows Server 2025 với gvSIG 2.6.0 build 3335: mở giao diện, vẽ bản đồ và xử lý dữ liệu mẫu. Đây là bản 0.1.1 dành cho học tập; chưa kiểm thử thủ công trên mọi cấu hình Windows 10/11. Xem [kết quả kiểm thử](docs/KIEM_THU.md).
 
 ## Chức năng được triển khai
 
@@ -23,21 +23,21 @@ VFMGIS là phần mở rộng desktop chạy **bên trong gvSIG Desktop**, dành
 
 Toàn bộ nhãn chức năng do VFMGIS tạo dùng tiếng Việt. Các cửa sổ gvSIG gốc, thông báo driver và một số nhãn của hộp thoại hệ thống vẫn phụ thuộc ngôn ngữ gvSIG/Java; **chưa Việt hóa toàn bộ gvSIG**.
 
-## Cài đặt trên Windows
+## Chạy trên Windows bằng một tệp EXE
 
-1. Cài gvSIG Desktop có **Scripting/Jython**. API được đối chiếu tài liệu gvSIG 2.3/2.4; cần kiểm thử riêng với bản gvSIG đang dùng. Dùng Java đi kèm bộ gvSIG.
-2. Tải mã nguồn: **Code → Download ZIP**, giải nén.
-3. Trong gvSIG mở **Tools → Scripting → Scripting Composer**, xác định thư mục `scripts/addons` của môi trường hiện tại. Đóng gvSIG trước khi chép tệp.
-4. Chép thư mục `addons/VFMGIS` của kho này vào thư mục `addons` đó. Không chép cả thư mục kho vào `addons`.
-5. Mở lại gvSIG, chọn **VFMGIS → Mở VFMGIS**. Nếu menu chưa đăng ký, chạy `addons/VFMGIS/launch.py` trong Scripting Composer.
+**Tải trực tiếp:** [VFMGIS-Windows.exe](https://github.com/xulytiengviet/vfmgis/releases/latest/download/VFMGIS-Windows.exe) · [Gói ZIP](https://github.com/xulytiengviet/vfmgis/releases/latest/download/VFMGIS-Windows.zip).
 
-Có thể dùng bộ chép/cài PowerShell, với **đường dẫn addons thực tế của máy**:
+1. Tải `VFMGIS-Windows.exe` từ **Releases**, không tải artifact mã nguồn trong Actions.
+2. Nhấp đúp EXE trên Windows 10/11 64-bit.
+3. Lần đầu chờ tải gvSIG 2.6.0 build 3335 và Java đi kèm (~503 MB), kiểm tra SHA-256 và giải nén. VFMGIS tự mở sau đó.
 
-```powershell
-.\tools\install.ps1 -AddonsDirectory "C:\duong-dan-thuc-te\scripts\addons"
-```
+Không cần cài Python/Java, chọn thư mục plugin hoặc chạy lệnh. Lần đầu cần Internet; lần sau dùng bộ chạy đã lưu trong `%LOCALAPPDATA%\VFMGIS`. EXE là trình khởi động/cài tự động, không chứa toàn bộ runtime. Tệp chưa ký số; không tắt Windows Defender hay SmartScreen.
 
-Bộ cài sao lưu thư mục VFMGIS cũ trước khi cập nhật. Không cần quyền quản trị nếu thư mục scripts thuộc người dùng. Không chạy `launch.py` bằng Python 3 ngoài gvSIG: các thư viện `gvsig`, `java`, `javax` do runtime gvSIG cung cấp.
+Nếu tải gián đoạn, bấm **Thử lại**. Chi tiết lỗi được lưu tại `%LOCALAPPDATA%\VFMGIS\launcher-error.txt`. Các phiên bản đã phát hành tại [Releases](https://github.com/xulytiengviet/vfmgis/releases); mỗi bản đi kèm `SHA256SUMS.txt` và manifest runtime.
+
+### Dành cho người đã cài gvSIG
+
+Có thể chép `addons/VFMGIS` vào `scripts/addons` của gvSIG rồi mở menu **VFMGIS → Mở VFMGIS**. Công cụ `tools/install.ps1` vẫn được giữ cho cách cài thủ công. Chỉ chạy mã Jython bằng Scripting Composer trong gvSIG.
 
 ## Bài thực hành đầu tiên
 
@@ -78,6 +78,6 @@ GitHub Actions xuất `VFMGIS-0.1.0-gvsig-addon.zip` trong **Actions → lượt
 - Clip và dissolve chỉ nhận vùng; centroid là trọng tâm toán học, có thể nằm ngoài vùng lõm. Buffer/distance là phép tính phẳng.
 - Không đoán CRS từ vị trí hoặc gán mọi dữ liệu VN-2000 cùng một EPSG. Người dùng phải xác nhận CRS nguồn đúng; phép chuyển datum phụ thuộc cấu hình gvSIG.
 - Dự án chỉ lưu các lớp do VFMGIS quản lý; tệp `.vfm` không thay thế định dạng dự án gvSIG.
-- Chưa đo hiệu năng trên máy Windows và chưa công bố chứng nhận tương thích một bản gvSIG cụ thể.
+- Chưa đo hiệu năng với dữ liệu lớn hoặc kiểm thử thủ công trên các cấu hình Windows 10/11; runtime được cố định ở gvSIG 2.6.0 build 3335.
 
 Xem [kiến trúc](docs/KIEN_TRUC.md) và [kiểm thử](docs/KIEM_THU.md). Mã nguồn GPL-3.0-or-later; xem `LICENSE` và `THIRD_PARTY.md`.
