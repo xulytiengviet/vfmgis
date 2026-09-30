@@ -174,7 +174,7 @@ static class Launcher {
             Application.Run(new SetupWindow());
             return 0;
         } catch (Exception e) {
-            if (args.Length > 0) { if (args.Length == 3) File.WriteAllText(args[2], e.ToString()); Console.Error.WriteLine(e); return 1; }
+            if (args.Length > 0) { File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "launcher-test-error.txt"), e.ToString()); if (args.Length == 3) File.WriteAllText(args[2], e.ToString()); Console.Error.WriteLine(e); return 1; }
             MessageBox.Show(e.Message, "VFMGIS · Không thể khởi động", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return 1;
         } finally { if (Lock != null) Lock.Dispose(); }

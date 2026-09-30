@@ -50,7 +50,7 @@ jobs:
         run: |
           Set-ItemProperty HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem -Name LongPathsEnabled -Value 0
           $p = Start-Process dist/VFMGIS-Windows.exe -ArgumentList '--verify-long-paths' -Wait -PassThru
-          if ($p.ExitCode -ne 0) { throw 'Path length regression failed with registry disabled' }
+          if ($p.ExitCode -ne 0) { Get-Content dist/launcher-test-error.txt; throw 'Path length regression failed with registry disabled' }
       - name: Test bundled gvSIG integration
         shell: pwsh
         run: ./windows/test-runtime.ps1
