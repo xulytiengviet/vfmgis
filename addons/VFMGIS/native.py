@@ -4,21 +4,10 @@
 from __future__ import unicode_literals
 from java.util import Locale
 from javax.swing import UIManager, JComponent
-from java.beans import PropertyChangeListener
 from org.gvsig.andami import PluginServices
 import gvsig
 
-_title_listener = None
 _started = False
-
-class TitleListener(PropertyChangeListener):
-    def propertyChange(self, event):
-        title = event.getNewValue()
-        if title and unicode(title).startswith('gvSIG'):
-            frame = event.getSource()
-            suffix = unicode(title).split(' : ', 1)
-            frame.setTitle('VFMGIS · lõi gvSIG 2.6' + (' : ' + suffix[1] if len(suffix) > 1 else ''))
-
 
 def configure_swing():
     Locale.setDefault(Locale('vi', 'VN'))
@@ -51,13 +40,13 @@ def configure_swing():
 
 
 def start():
-    global _started, _title_listener
+    global _started
     if _started: return
     configure_swing()
     frame = PluginServices.getMainFrame()
-    _title_listener = TitleListener()
-    frame.addPropertyChangeListener('title', _title_listener)
-    frame.setTitle('VFMGIS · lõi gvSIG 2.6')
+    # Use gvSIG's native prefix API: setTitle itself prepends this prefix.
+    frame.setTitlePrefix('VFMGIS · lõi gvSIG 2.6')
+    frame.setTitle('Chưa đặt tên')
     project = gvsig.currentProject()
     if unicode(project.getName()).lower() in ('untitled', 'sin titulo', 'sin título'):
         project.setName('Chưa đặt tên')
