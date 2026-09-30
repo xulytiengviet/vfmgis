@@ -87,8 +87,8 @@ def process(layer, operation, path, crs, distance=None, mask=None, target_crs=No
     if not rows:
         raise ValueError('Lớp không có đối tượng.')
     schema = gvsig.createFeatureType()
-    schema.append('ID', 'INTEGER')
-    schema.append('GEOMETRY', 'GEOMETRY')
+    schema.append('ID', b'INTEGER')
+    schema.append('GEOMETRY', b'GEOMETRY')
     if operation in ('buffer', 'dissolve', 'clip'):
         geometry_type = geom.MULTIPOLYGON
     elif operation == 'centroid':
@@ -150,7 +150,7 @@ def process(layer, operation, path, crs, distance=None, mask=None, target_crs=No
             if not parts:
                 continue
             geometry = factory.createMultiPolygon(parts)
-        output_rows.append({'ID': index + 1, 'GEOMETRY': geom.createGeometryFromWKT(geometry.toText())})
+        output_rows.append({'ID': index + 1, b'GEOMETRY': geom.createGeometryFromWKT(geometry.toText())})
     if not output_rows:
         raise ValueError('Không có kết quả giao nhau; chưa tạo tệp.')
     output = gvsig.createShape(schema, filename=path, CRS=target_crs or crs)

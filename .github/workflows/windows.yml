@@ -15,19 +15,24 @@ jobs:
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: runtime.zip
+          key: gvsig-win-3335-2a56c62bd027ecf3
       - name: Download official gvSIG runtime and inspect layout
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $url = 'http://downloads.gvsig.org/download/gvsig-desktop-testing/dists/2.6.0/builds/3335/gvSIG-desktop-2.6.0-3335-final-win-x86_64.zip'
-          curl.exe --tlsv1.2 --tls-max 1.2 --fail --location --retry 3 --connect-timeout 30 --max-time 900 --output runtime.zip $url
-          if ($LASTEXITCODE -ne 0) { throw 'Official runtime download failed' }
+          $manifest = Get-Content windows/runtime.json -Raw | ConvertFrom-Json
+          if (-not (Test-Path runtime.zip)) {
+            curl.exe --fail --location --retry 3 --connect-timeout 30 --max-time 900 --output runtime.zip $manifest.url
+            if ($LASTEXITCODE -ne 0) { throw 'Official runtime download failed' }
+          }
           $hash = (Get-FileHash runtime.zip -Algorithm SHA256).Hash.ToLower()
-          @{ url=$url; sha256=$hash; version='gvSIG 2.6.0 build 3335 Windows x64' } | ConvertTo-Json | Set-Content windows/runtime.json
+          if ($hash -ne $manifest.sha256) { throw 'Upstream checksum changed; stop before execution' }
           7z x runtime.zip -oruntime -y | Select-Object -Last 4
           if ($LASTEXITCODE -ne 0) { throw 'Runtime extraction failed' }
-          Get-ChildItem runtime -Recurse -Include '*.exe','*.bat','autorun.py','jython*.jar' | ForEach-Object { $_.FullName }
-          Get-ChildItem runtime -Recurse -Filter 'gvsig*.bat' | ForEach-Object { Get-Content $_.FullName }
+          Get-ChildItem runtime -Recurse -Filter 'gvsig-desktop.exe' | ForEach-Object { $_.FullName }
       - name: Build Windows launcher
         shell: pwsh
         run: ./windows/build.ps1

@@ -7,10 +7,10 @@ from gvsig import geom
 
 def create_sample(path):
     schema = gvsig.createFeatureType()
-    schema.append('ID', 'INTEGER')
-    schema.append('TEN', 'STRING', 80)
-    schema.append('DANSO', 'INTEGER')
-    schema.append('GEOMETRY', 'GEOMETRY')
+    schema.append('ID', b'INTEGER')
+    schema.append('TEN', b'STRING', 80)
+    schema.append('DANSO', b'INTEGER')
+    schema.append('GEOMETRY', b'GEOMETRY')
     schema.get('GEOMETRY').setGeometryType(geom.POLYGON, geom.D2)
     layer = gvsig.createShape(schema, filename=path, CRS='EPSG:32648')
     layer.edit()
