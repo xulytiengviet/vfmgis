@@ -12,6 +12,10 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - name: Install Subversion
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y subversion
       - name: Export the source tag matching the installed Andami core
         shell: bash
         run: |
