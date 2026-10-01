@@ -529,5 +529,20 @@
   "Move behind": "Đưa xuống một lớp",
   "Coordinate capture": "Lấy tọa độ",
   "Capture point": "Lấy tọa độ điểm",
-  "Field calculator (old)": "Tính toán trường (cũ)"
+  "Field calculator (old)": "Tính toán trường (cũ)",
+  "Area defined by a field in meters": "Lấy kích thước vùng đệm từ trường (mét)",
+  "Creates a multigeometry with all geometries of a group": "Tạo hình học đa phần từ tất cả hình học trong nhóm",
+  "Dissolve entities": "Gộp đối tượng",
+  "Input coverages": "Các lớp đầu vào",
+  "Number of concentrical rings": "Số vòng đồng tâm",
+  "Overlay cover": "Lớp chồng phủ",
+  "Projection of destination": "Phép chiếu đích",
+  "ROI mask": "Mặt nạ vùng quan tâm",
+  "Selected geometries (Input cover)": "Hình học đã chọn (lớp đầu vào)",
+  "Spatial fusion of the geometries (polygons only)": "Hợp nhất hình học theo không gian (chỉ áp dụng cho vùng)",
+  "The type of both layers are differents": "Hai lớp có kiểu khác nhau",
+  "Time field": "Trường thời gian",
+  "Topologic problems in the input layer. The result of the geoprocess may not be right.": "Lớp đầu vào có lỗi tô-pô. Kết quả xử lý không gian có thể không chính xác.",
+  "Use fields from layer": "Dùng các trường của lớp",
+  "Area defined by a distance in meters": "Kích thước vùng đệm theo khoảng cách (mét)"
 }

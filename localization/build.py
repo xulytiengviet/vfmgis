@@ -6,7 +6,7 @@ import sys
 import zipfile
 from collections import Counter
 from pathlib import Path
-from catalog import collect
+from catalog import collect, collect_algorithms
 from properties import dumps, loads
 from seed_translation import placeholders
 
@@ -21,6 +21,7 @@ def invariant(key, source):
 
 def build(archive, output):
     catalog = collect(archive)
+    catalog.update(collect_algorithms(archive))
     memory = {}
     for path in sorted((BASE / 'vi').glob('*.json')):
         memory.update(read_json(path))
@@ -53,7 +54,7 @@ def build(archive, output):
         translated_bundles[path] = translated
     report = {
         'core': 'gvSIG 2.6.0 build 3335',
-        'scope': '131 native text[_locale].properties bundles in the pinned official runtime; not a claim of 100% product localization',
+        'scope': 'Native gvSIG text and named algorithm translation bundles in the pinned official runtime; not a claim of 100% product localization',
         'bundles': len(catalog), 'source_entries': sum(map(len, catalog.values())),
         'translated_entries': sum(map(len, translated_bundles.values())),
         'status_counts': dict(counter), 'missing': missing, 'placeholder_errors': mismatches,
@@ -74,13 +75,14 @@ def build(archive, output):
     merged.update(read_json(BASE / 'extra-keys.json'))
     loose, jar_entries = {}, {}
     for path, values in translated_bundles.items():
+        suffix = 'text_vi.properties' if path.endswith('/') else '_vi.properties'
         relative = path.split('/', 1)[1]
         if '!/' in relative:
-            resource = relative.split('!/', 1)[1] + 'text_vi.properties'
+            resource = relative.split('!/', 1)[1] + suffix
             # Duplicate package resource names share the global gvSIG key vocabulary.
             jar_entries.setdefault(resource, {}).update(values)
         else:
-            loose[relative + 'text_vi.properties'] = dumps(values)
+            loose[relative + suffix] = dumps(values)
     loose['i18n/translations.all/text_vi.properties'] = dumps(merged)
     # Register the locale without dropping any other installed language.
     with zipfile.ZipFile(archive) as z:

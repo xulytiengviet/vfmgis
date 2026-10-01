@@ -2,7 +2,7 @@
 
 ## Nguồn dữ liệu và quy trình
 
-`windows/runtime.json` khóa gvSIG Desktop 2.6.0 build 3335 bằng SHA-256. `inventory.py` trích tài nguyên từ ZIP gốc và JAR. `catalog.py` đọc ngữ nghĩa Java Properties, hợp nhất bản gốc/Tây Ban Nha/Anh, giữ khóa không đổi. 131 bộ tài nguyên có tổng 19.180 mục, 9.480 chuỗi nguồn khác nhau.
+`windows/runtime.json` khóa gvSIG Desktop 2.6.0 build 3335 bằng SHA-256. `inventory.py` trích tài nguyên từ ZIP gốc và JAR. `catalog.py` đọc ngữ nghĩa Java Properties, hợp nhất bản gốc/Tây Ban Nha/Anh, giữ khóa không đổi. 148 bộ tài nguyên có tổng 19.336 mục, 9.480 chuỗi nguồn khác nhau.
 
 `vi/*.json`: bản dịch nháp tạo một lần từ các chuỗi giao diện công khai bằng dịch máy (Google Translate). Không gửi dữ liệu người dùng, hình học, dự án hoặc thông tin đăng nhập. Tệp này được lưu trong Git, không tự dịch lúc chạy/build. `seed_translation.py` là công cụ tạo nháp tùy chọn, không được gọi trong CI phát hành.
 
@@ -20,7 +20,7 @@ Tệp phát hành `localization-report.json` thống kê từng loại và liệ
 
 ## Cổng kiểm tra và giới hạn
 
-Độ phủ hiện tại: 19.180/19.180 mục (100% trong phạm vi 131 bộ tài nguyên đã kiểm kê). 2.621 mục đã rà soát; 16.519 mục nháp máy; 40 giá trị kỹ thuật.
+Độ phủ hiện tại: 19.336/19.336 mục (100% trong phạm vi 148 bộ tài nguyên đã kiểm kê). 2.666 mục đã rà soát; 16.630 mục nháp máy; 40 giá trị kỹ thuật.
 
 **Chưa đồng nghĩa Việt hóa toàn bộ sản phẩm 100%.** Công việc còn lại được ghi rõ trong `remaining_review` của báo cáo:
 

@@ -30,3 +30,27 @@ if __name__ == '__main__':
     data = collect(sys.argv[1])
     Path(sys.argv[2]).write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
     print(len(data), 'bundles;', sum(map(len, data.values())), 'entries;', len(set(v for b in data.values() for v in b.values())), 'unique source strings')
+
+
+def collect_algorithms(archive):
+    """gvSIG algorithm bundles use algorithm names instead of 'text'."""
+    families = {}
+    with zipfile.ZipFile(archive) as z:
+        for name in sorted(z.namelist()):
+            if not ('!/org/gvsig/geoprocess/algorithm/' in name or '!/org/gvsig/raster/roimask/' in name):
+                continue
+            match = re.match(r'(.+?)(?:_(en|es))?\.properties$', name)
+            if not match or match[1].endswith('/text'):
+                continue
+            stem, language = match[1], match[2] or 'default'
+            # Ignore other language variants; base and en/es must share a family.
+            if language == 'default' and re.search(r'_[a-z]{2}(?:_[A-Za-z]{2})?$', stem):
+                continue
+            families.setdefault(stem, {})[language] = loads(z.read(name))
+    result = {}
+    for stem, languages in families.items():
+        values = {}
+        for lang in ['default', 'es', 'en']:
+            values.update({k:v for k,v in languages.get(lang, {}).items() if v.strip()})
+        if values: result[stem] = values
+    return result

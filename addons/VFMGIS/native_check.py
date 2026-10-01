@@ -90,6 +90,12 @@ def run(report):
                     assert 'Công cụ' in labels, repr(labels)
                     assert not any(label in ('File', 'View', 'Layer', 'Show', 'Map', 'Tools', 'Window', 'Help') for label in labels), repr(labels)
                     assert Locale.getDefault().getLanguage() == 'vi'
+                    from java.util import ResourceBundle
+                    from java.lang import ClassLoader
+                    bundle = ResourceBundle.getBundle('org.gvsig.geoprocess.algorithm.buffer.buffer',
+                        Locale('vi'), ClassLoader.getSystemClassLoader())
+                    assert bundle.getString('Buffer') == 'Vùng đệm'
+                    assert bundle.getString('Distance') == 'Khoảng cách'
                     assert UIManager.getString('FileChooser.cancelButtonText') == 'Hủy'
                     assert unicode(frame.getTitle()).startswith('VFMGIS')
                     image = BufferedImage(frame.getWidth(), frame.getHeight(), BufferedImage.TYPE_INT_RGB)
