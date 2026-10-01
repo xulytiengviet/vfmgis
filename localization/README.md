@@ -2,7 +2,7 @@
 
 ## Nguồn dữ liệu và quy trình
 
-`windows/runtime.json` khóa gvSIG Desktop 2.6.0 build 3335 bằng SHA-256. `inventory.py` trích tài nguyên từ ZIP gốc và JAR. `catalog.py` đọc ngữ nghĩa Java Properties, hợp nhất bản gốc/Tây Ban Nha/Anh, giữ khóa không đổi. 148 bộ tài nguyên có tổng 19.336 mục, 9.480 chuỗi nguồn khác nhau.
+`windows/runtime.json` khóa gvSIG Desktop 2.6.0 build 3335 bằng SHA-256. `inventory.py` trích tài nguyên từ ZIP gốc và JAR. `catalog.py` đọc ngữ nghĩa Java Properties, hợp nhất bản gốc/Tây Ban Nha/Anh, giữ khóa không đổi. 148 bộ tài nguyên có tổng 19.336 mục, 9.494 chuỗi nguồn khác nhau.
 
 `vi/*.json`: bản dịch nháp tạo một lần từ các chuỗi giao diện công khai bằng dịch máy (Google Translate). Không gửi dữ liệu người dùng, hình học, dự án hoặc thông tin đăng nhập. Tệp này được lưu trong Git, không tự dịch lúc chạy/build. `seed_translation.py` là công cụ tạo nháp tùy chọn, không được gọi trong CI phát hành.
 
@@ -25,7 +25,7 @@ Tệp phát hành `localization-report.json` thống kê từng loại và liệ
 **Chưa đồng nghĩa Việt hóa toàn bộ sản phẩm 100%.** Công việc còn lại được ghi rõ trong `remaining_review` của báo cáo:
 
 - Rà soát thuật ngữ và ngữ pháp của bản dịch nháp, đặc biệt chức năng chuyên sâu.
-- Chuỗi viết trực tiếp trong Java/Jython và các bộ tài nguyên bên thứ ba không theo tên `text.properties`.
+- Chuỗi viết trực tiếp trong Java/Jython và các bộ tài nguyên giao diện bên thứ ba chưa được kiểm kê.
 - Kiểm tra tất cả hộp thoại, lời nhắc lỗi và bố cục chữ trên Windows 10/11.
 
 CI kiểm tra menu trên giao diện gốc, mở bản đồ gốc với Shapefile thật và các phép xử lý DAL. Ảnh `windows-native.png` và `native-menus.json` là bằng chứng từ runtime. CI không tự chứng nhận mọi màn hình.

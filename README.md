@@ -12,9 +12,11 @@ VFMGIS 0.2 dùng **lõi và giao diện desktop nguyên bản của gvSIG 2.6.0 
 - **Đóng gói:** EXE tự tải bộ chạy chính thức đã khóa SHA-256, thêm tài nguyên tiếng Việt rồi mở gvSIG. Không cần tự cài Java/Python.
 - **Dự án:** dùng định dạng `.gvsproj` của gvSIG. Tệp `.vfm` thuộc giao diện thử nghiệm 0.1; không tự chuyển đổi hay ghi đè dữ liệu cũ.
 
-Mã nguồn lõi và các thư viện vẫn thuộc các tác giả gvSIG; VFMGIS là bản phân phối bổ sung tài nguyên ngôn ngữ và mã khởi động. Kho này không chứa một bản sao toàn bộ cây mã Java gvSIG và không tuyên bố đã biên dịch lại lõi. Cách tích hợp được tài liệu gvSIG 2.x khuyến nghị: phát triển phần bổ sung trên bản cài gvSIG gốc. Xem [nguồn và giấy phép](THIRD_PARTY.md).
+Mã nguồn lõi và các thư viện vẫn thuộc các tác giả gvSIG; VFMGIS là bản phân phối bổ sung tài nguyên ngôn ngữ và mã khởi động. Kho này [chưa nhập được cây mã Java gốc do upstream hết thời gian kết nối](upstream/README.md) và không tuyên bố đã biên dịch lại lõi. Cách tích hợp được tài liệu gvSIG 2.x khuyến nghị: phát triển phần bổ sung trên bản cài gvSIG gốc. Xem [nguồn và giấy phép](THIRD_PARTY.md).
 
 ## Windows
+
+Bản dựng bổ sung 148 bộ tài nguyên đã kiểm thử tại [Actions ngày 01/10/2026](https://github.com/xulytiengviet/vfmgis/actions/runs/36832833211); EXE nằm trong artifact `windows-build-evidence`. Bước đăng Release bị GitHub từ chối HTTP 403. [Kết quả và phần còn thiếu](docs/KIEM_THU_NATIVE.md).
 
 Tải **bản 0.2.0 preview** tại [Releases](https://github.com/xulytiengviet/vfmgis/releases), chọn `VFMGIS-Windows.exe`. Bản preview không thay liên kết `releases/latest` của bản 0.1.2 cũ.
 
