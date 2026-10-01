@@ -22,7 +22,12 @@ jobs:
           set -euo pipefail
           source_url=$(python -c 'import json; print(json.load(open("upstream/core.json"))["source_url"])')
           mkdir -p source-evidence
-          timeout 120 svn info --non-interactive "$source_url" > source-evidence/svn-info.txt
+          if ! timeout 45 svn info --non-interactive --config-option servers:global:http-timeout=30 "$source_url" > source-evidence/svn-info.txt 2> source-evidence/https-error.txt; then
+            # Public upstream also documents HTTP; retain exact URL and revision.
+            source_url="${source_url/https:/http:}"
+            timeout 60 svn info --non-interactive --config-option servers:global:http-timeout=30 "$source_url" > source-evidence/svn-info.txt 2> source-evidence/http-error.txt
+          fi
+          printf '%s\n' "$source_url" > source-evidence/source-url.txt
           timeout 600 svn export --non-interactive "$source_url" original-core > source-evidence/export.log
           test -f original-core/pom.xml
           python - <<'PY'
@@ -43,7 +48,7 @@ jobs:
           mkdir -p core
           cp -a original-core/. core/
           cp upstream/core.json source-evidence/core-lock.json
-          git add core source-evidence/core-lock.json source-evidence/svn-info.txt
+          git add core source-evidence/core-lock.json source-evidence/svn-info.txt source-evidence/source-url.txt
           git -c user.name='VFMGIS source importer' -c user.email='actions@users.noreply.github.com' commit -m 'Import unmodified gvSIG core 2.0.436 with SVN provenance'
           git push origin HEAD:refs/heads/upstream/gvsig-2.0.436
       - uses: actions/upload-artifact@v4
